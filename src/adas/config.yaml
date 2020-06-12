@@ -1,0 +1,14 @@
+dataset: 'CIFAR100' # options: CIFAR100, CIFAR10, ImageNet
+network: 'ResNet34' # options: VGG166, DPN92, SENet18, densenet_cifar, GoogLeNet, ShuffleNetG2, ShuffleNetV2, ResNet34, ResNeXt29_2x64d, PreActResNet18, MobileNet, MobileNetV2, EfficientNetB0
+n_trials: 1
+max_epoch: 50
+mini_batch_size: 128
+min_lr: 0.00000000000000000001
+init_lr: 0.03
+beta: 0.8
+zeta: 1.0
+p: 1
+loss: 'cross_entropy' # options: cross_entropy
+optim_method: 'SGD' # options: SGD
+lr_scheduler: 'AdaS' # options: AdaS
+

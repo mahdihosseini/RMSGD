@@ -1,0 +1,8 @@
+[run]
+branch = true
+# Won't work if you don't install in editable mode.
+source =
+    src/
+
+[report]
+sort = cover

@@ -1,0 +1,4 @@
+# Source variables defined in .env
+set -a
+. ./.env
+set +a
