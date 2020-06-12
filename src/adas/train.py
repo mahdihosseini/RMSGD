@@ -30,13 +30,15 @@ import time
 
 import torch.backends.cudnn as cudnn
 import pandas as pd
-# import numpy as np
+import numpy as np
 import torch
 import yaml
 
 # from .test import main as test_main
 # from .utils import progress_bar
+from .early_stop import EarlyStop
 from .optim.sgd import SGDVec
+from .optim.adabound import AdaBound
 from .metrics import Metrics
 from .models import get_net
 from .data import get_data
@@ -50,6 +52,8 @@ best_acc = 0
 metrics = None
 adas = None
 checkpoint_path = None
+early_stop = None
+config = None
 
 
 def args(sub_parser: _SubParsersAction):
@@ -119,7 +123,9 @@ def get_loss(loss: str) -> torch.nn.Module:
 
 
 def get_optimizer_scheduler(init_lr: float, optim_method: str,
-                            lr_scheduler: str) -> torch.nn.Module:
+                            lr_scheduler: str,
+                            train_loader_len: int,
+                            max_epochs: int) -> torch.nn.Module:
     optimizer = None
     scheduler = None
     if optim_method == 'SGD':
@@ -131,20 +137,37 @@ def get_optimizer_scheduler(init_lr: float, optim_method: str,
             optimizer = torch.optim.SGD(
                 net.parameters(), lr=init_lr,
                 momentum=0.9, weight_decay=5e-4)
-    elif optim_method == 'ADAM':
-        optimizer = torch.optim.Adam(net.parameters())
+    elif optim_method == 'AdaM':
+        optimizer = torch.optim.Adam(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaGrad':
+        optimizer = torch.optim.Adagrad(net.parameters(), lr=init_lr)
+    elif optim_method == 'RMSProp':
+        optimizer = torch.optim.RMSprop(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaDelta':
+        optimizer = torch.optim.Adadelta(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaBound':
+        optimizer = AdaBound(net.parameters(), lr=init_lr)
     if lr_scheduler == 'StepLR':
         scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, step_size=70, gamma=0.1)
+    elif lr_scheduler == 'CosineAnnealingWarmRestarts':
+        first_restart_epochs = 25
+        increasing_factor = 1
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=first_restart_epochs, T_mult=increasing_factor)
+    elif lr_scheduler == 'OneCycleLR':
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer, max_lr=init_lr,
+            steps_per_epoch=train_loader_len, epochs=max_epochs)
     return (optimizer, scheduler)
 
 
 def main(args: APNamespace):
     root_path = Path(args.root).expanduser()
-    config_path = root_path / Path(args.config).expanduser()
+    config_path = Path(args.config).expanduser()
     data_path = root_path / Path(args.data).expanduser()
     output_path = root_path / Path(args.output).expanduser()
-    global checkpoint_path
+    global checkpoint_path, config
     checkpoint_path = root_path / Path(args.checkpoint).expanduser()
 
     if not config_path.exists():
@@ -173,11 +196,6 @@ def main(args: APNamespace):
 
     with config_path.open() as f:
         config = yaml.load(f)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    global best_acc
-    best_acc = 0  # best test accuracy
-    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
-
     print("Adas: Argument Parser Options")
     print("-"*45)
     print(f"    {'config':<20}: {args.config:<20}")
@@ -190,6 +208,13 @@ def main(args: APNamespace):
     print("-"*45)
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    global best_acc
+    best_acc = 0  # best test accuracy
+    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
+    if np.less(float(config['early_stop_threshold']), 0):
+        print("AdaS: Notice: early stop will not be used as it was set to " +
+              "{early_stop}, training till completion.")
 
     for trial in range(config['n_trials']):
         device
@@ -225,7 +250,11 @@ def main(args: APNamespace):
         optimizer, scheduler = get_optimizer_scheduler(
             init_lr=float(config['init_lr']),
             optim_method=config['optim_method'],
-            lr_scheduler=config['lr_scheduler'])
+            lr_scheduler=config['lr_scheduler'],
+            train_loader_len=len(train_loader),
+            max_epochs=int(config['max_epoch']))
+        early_stop = EarlyStop(patience=int(config['early_stop_patience']),
+                               threshold=float(config['early_stop_threshold']))
 
         if device == 'cuda':
             net = torch.nn.DataParallel(net)
@@ -254,7 +283,7 @@ def main(args: APNamespace):
             start_time = time.time()
             print(f"AdaS: Epoch {epoch}/{epochs[-1]} Started.")
             train_loss, train_accuracy = epoch_iteration(
-                train_loader, epoch, device, optimizer)
+                train_loader, epoch, device, optimizer, scheduler)
             end_time = time.time()
             if config['lr_scheduler'] == 'StepLR':
                 scheduler.step()
@@ -284,6 +313,9 @@ def main(args: APNamespace):
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
 
             df.to_excel(str(output_path / xlsx_name))
+            if early_stop(train_loss):
+                print("AdaS: Early stop activated.")
+                break
 
 
 def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
@@ -330,7 +362,7 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
 
 
 def epoch_iteration(train_loader, epoch: int,
-                    device, optimizer) -> Tuple[float, float]:
+                    device, optimizer, scheduler) -> Tuple[float, float]:
     # logging.info(f"Adas: Train: Epoch: {epoch}")
     global net, performance_statistics, metrics, adas
     net.train()
@@ -341,6 +373,8 @@ def epoch_iteration(train_loader, epoch: int,
     """train CNN architecture"""
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
+        if config['lr_scheduler'] == 'CosineAnnealingWarmRestarts':
+            scheduler.step(epoch + batch_idx / len(train_loader))
         optimizer.zero_grad()
         outputs = net(inputs)
         loss = criterion(outputs, targets)
@@ -355,6 +389,8 @@ def epoch_iteration(train_loader, epoch: int,
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
+        if config['lr_scheduler'] == 'OneCycleLR':
+            scheduler.step()
 
         # progress_bar(batch_idx, len(train_loader),
         #              'Loss: %.3f | Acc: %.3f%% (%d/%d)'
