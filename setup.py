@@ -27,7 +27,7 @@ setup(
         # packages
     ],
     setup_requires=[
-        'setuptools_scm',  # for git-based versioning
+        # 'setuptools_scm',  # for git-based versioning
     ],
     # DO NOT do tests_require; just call pytest or python -m pytest.
     license='License :: Other/Proprietary License',
