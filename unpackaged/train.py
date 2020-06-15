@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from argparse import ArgumentParser, \
-    Namespace as APNamespace, _SubParsersAction
+from argparse import Namespace as APNamespace, \
+    _SubParsersAction, ArgumentParser
 from typing import Tuple
 from pathlib import Path
 
@@ -31,13 +31,15 @@ import time
 
 import torch.backends.cudnn as cudnn
 import pandas as pd
-# import numpy as np
+import numpy as np
 import torch
 import yaml
 
 # from .test import main as test_main
 # from .utils import progress_bar
+from early_stop import EarlyStop
 from optim.sgd import SGDVec
+from optim.adabound import AdaBound
 from metrics import Metrics
 from models import get_net
 from data import get_data
@@ -51,6 +53,8 @@ best_acc = 0
 metrics = None
 adas = None
 checkpoint_path = None
+early_stop = None
+config = None
 
 
 def args(sub_parser: _SubParsersAction):
@@ -102,7 +106,7 @@ def args(sub_parser: _SubParsersAction):
     sub_parser.add_argument(
         '--checkpoint', dest='checkpoint',
         default='.adas-checkpoint', type=str,
-        help="Set checkpoint path: Default = '.adas-checkpoint/ckpt.pth'")
+        help="Set checkpoint directory path: Default = '.adas-checkpoint")
     sub_parser.add_argument(
         '--root', dest='root',
         default='.', type=str,
@@ -120,7 +124,9 @@ def get_loss(loss: str) -> torch.nn.Module:
 
 
 def get_optimizer_scheduler(init_lr: float, optim_method: str,
-                            lr_scheduler: str) -> torch.nn.Module:
+                            lr_scheduler: str,
+                            train_loader_len: int,
+                            max_epochs: int) -> torch.nn.Module:
     optimizer = None
     scheduler = None
     if optim_method == 'SGD':
@@ -132,20 +138,41 @@ def get_optimizer_scheduler(init_lr: float, optim_method: str,
             optimizer = torch.optim.SGD(
                 net.parameters(), lr=init_lr,
                 momentum=0.9, weight_decay=5e-4)
-    elif optim_method == 'ADAM':
-        optimizer = torch.optim.Adam(net.parameters())
+    elif optim_method == 'AdaM':
+        optimizer = torch.optim.Adam(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaGrad':
+        optimizer = torch.optim.Adagrad(net.parameters(), lr=init_lr)
+    elif optim_method == 'RMSProp':
+        optimizer = torch.optim.RMSprop(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaDelta':
+        optimizer = torch.optim.Adadelta(net.parameters(), lr=init_lr)
+    elif optim_method == 'AdaBound':
+        optimizer = AdaBound(net.parameters(), lr=init_lr)
+    else:
+        print(f"Adas: Warning: Unknown optimizer {optim_method}")
     if lr_scheduler == 'StepLR':
         scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, step_size=70, gamma=0.1)
+    elif lr_scheduler == 'CosineAnnealingWarmRestarts':
+        first_restart_epochs = 25
+        increasing_factor = 1
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=first_restart_epochs, T_mult=increasing_factor)
+    elif lr_scheduler == 'OneCycleLR':
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer, max_lr=init_lr,
+            steps_per_epoch=train_loader_len, epochs=max_epochs)
+    elif lr_scheduler != 'AdaS':
+        print(f"Adas: Warning: Unknown LR scheduler {lr_scheduler}")
     return (optimizer, scheduler)
 
 
 def main(args: APNamespace):
     root_path = Path(args.root).expanduser()
-    config_path = root_path / Path(args.config).expanduser()
+    config_path = Path(args.config).expanduser()
     data_path = root_path / Path(args.data).expanduser()
     output_path = root_path / Path(args.output).expanduser()
-    global checkpoint_path
+    global checkpoint_path, config
     checkpoint_path = root_path / Path(args.checkpoint).expanduser()
 
     if not config_path.exists():
@@ -153,44 +180,40 @@ def main(args: APNamespace):
         print(f"AdaS: Config path {config_path} does not exist")
         raise ValueError
     if not data_path.exists():
-        print(f"AdaS: Data dir {data_path} does not exists, building")
+        print(f"AdaS: Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"AdaS: Output dir {output_path} does not exists, building")
+        print(f"AdaS: Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         if args.resume:
             print(f"AdaS: Cannot resume from checkpoint without specifying " +
                   "checkpoint dir")
             raise ValueError
-        if checkpoint_path.is_dir():
-            print(f"AdaS: Checkpoint dir {checkpoint_path} does not exists, " +
-                  "building")
-            checkpoint_path.mkdir(exist_ok=True, parents=True)
-        else:
-            print(f"AdaS: Checkpoint path {checkpoint_path} doesn't exist " +
-                  "building directory to store checkpoints: .adas-checkpoint")
-            checkpoint_path.cwd().mkdir(exist_ok=True, parents=True)
+        checkpoint_path.mkdir(exist_ok=True, parents=True)
 
     with config_path.open() as f:
         config = yaml.load(f)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    global best_acc
-    best_acc = 0  # best test accuracy
-    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
-
     print("Adas: Argument Parser Options")
     print("-"*45)
-    print(f"    {'config':<20}: {args.config:<20}")
-    print(f"    {'data':<20}: {args.data:<20}")
-    print(f"    {'output':<20}: {args.output:<20}")
-    print(f"    {'checkpoint':<20}: {args.checkpoint:<20}")
-    print(f"    {'resume':<20}: {args.resume:<20}")
+    print(f"    {'config':<20}: {args.config:<40}")
+    print(f"    {'data':<20}: {str(Path(args.root) / args.data):<40}")
+    print(f"    {'output':<20}: {str(Path(args.root) / args.output):<40}")
+    print(f"    {'checkpoint':<20}: {str(Path(args.root) / args.checkpoint):<40}")
+    print(f"    {'root':<20}: {args.root:<40}")
+    print(f"    {'resume':<20}: {'True' if args.resume else 'False':<20}")
     print("\nAdas: Train: Config")
     print(f"    {'Key':<20} {'Value':<20}")
     print("-"*45)
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    global best_acc
+    best_acc = 0  # best test accuracy
+    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
+    if np.less(float(config['early_stop_threshold']), 0):
+        print("AdaS: Notice: early stop will not be used as it was set to " +
+              "{early_stop}, training till completion.")
 
     for trial in range(config['n_trials']):
         device
@@ -226,7 +249,11 @@ def main(args: APNamespace):
         optimizer, scheduler = get_optimizer_scheduler(
             init_lr=float(config['init_lr']),
             optim_method=config['optim_method'],
-            lr_scheduler=config['lr_scheduler'])
+            lr_scheduler=config['lr_scheduler'],
+            train_loader_len=len(train_loader),
+            max_epochs=int(config['max_epoch']))
+        early_stop = EarlyStop(patience=int(config['early_stop_patience']),
+                               threshold=float(config['early_stop_threshold']))
 
         if device == 'cuda':
             net = torch.nn.DataParallel(net)
@@ -235,10 +262,11 @@ def main(args: APNamespace):
         if args.resume:
             # Load checkpoint.
             print("Adas: Resuming from checkpoint...")
-            if checkpoint_path.is_dir():
-                checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
-            else:
-                checkpoint = torch.load(str(checkpoint_path))
+            checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
+            # if checkpoint_path.is_dir():
+            #     checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
+            # else:
+            #     checkpoint = torch.load(str(checkpoint_path))
             net.load_state_dict(checkpoint['net'])
             best_acc = checkpoint['acc']
             start_epoch = checkpoint['epoch']
@@ -253,19 +281,20 @@ def main(args: APNamespace):
         epochs = range(start_epoch, start_epoch + config['max_epoch'])
         for epoch in epochs:
             start_time = time.time()
-            print(f"AdaS: Epoch {epoch} Started.")
+            # print(f"AdaS: Epoch {epoch}/{epochs[-1]} Started.")
             train_loss, train_accuracy = epoch_iteration(
-                train_loader, epoch, device, optimizer)
+                train_loader, epoch, device, optimizer, scheduler)
             end_time = time.time()
             if config['lr_scheduler'] == 'StepLR':
                 scheduler.step()
             test_loss, test_accuracy = test_main(test_loader, epoch, device)
             total_time = time.time()
             print(
-                f"AdaS: Epoch {epoch}/{epochs[-1]} Ended | " +
+                f"AdaS: Trial {trial}/{config['n_trials'] - 1} | " +
+                f"Epoch {epoch}/{epochs[-1]} Ended | " +
                 "Total Time: {:.3f}s | ".format(total_time - start_time) +
                 "Epoch Time: {:.3f}s | ".format(end_time - start_time) +
-                "Est. Time Remaining: {:.3f}s | ".format(
+                "~Time Left: {:.3f}s | ".format(
                     (total_time - start_time) * (epochs[-1] - epoch)),
                 "Train Loss: {:.4f}% | Train Acc. {:.4f}% | ".format(
                     train_loss,
@@ -285,6 +314,9 @@ def main(args: APNamespace):
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
 
             df.to_excel(str(output_path / xlsx_name))
+            if early_stop(train_loss):
+                print("AdaS: Early stop activated.")
+                break
 
 
 def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
@@ -313,7 +345,7 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
     # Save checkpoint.
     acc = 100. * correct / total
     if acc > best_acc:
-        print('Adas: Saving checkpoint...')
+        # print('Adas: Saving checkpoint...')
         state = {
             'net': net.state_dict(),
             'acc': acc,
@@ -321,17 +353,18 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
         }
         if adas is not None:
             state['historical_io_metrics'] = adas.historical_io_metrics
-        if checkpoint_path.is_dir():
-            torch.save(state, str(checkpoint_path / 'ckpt.pth'))
-        else:
-            torch.save(state, str(checkpoint_path))
+        torch.save(state, str(checkpoint_path / 'ckpt.pth'))
+        # if checkpoint_path.is_dir():
+        #     torch.save(state, str(checkpoint_path / 'ckpt.pth'))
+        # else:
+        #     torch.save(state, str(checkpoint_path))
         best_acc = acc
     performance_statistics['acc_epoch_' + str(epoch)] = acc / 100
     return test_loss / (batch_idx + 1), acc
 
 
 def epoch_iteration(train_loader, epoch: int,
-                    device, optimizer) -> Tuple[float, float]:
+                    device, optimizer, scheduler) -> Tuple[float, float]:
     # logging.info(f"Adas: Train: Epoch: {epoch}")
     global net, performance_statistics, metrics, adas
     net.train()
@@ -342,6 +375,8 @@ def epoch_iteration(train_loader, epoch: int,
     """train CNN architecture"""
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
+        if config['lr_scheduler'] == 'CosineAnnealingWarmRestarts':
+            scheduler.step(epoch + batch_idx / len(train_loader))
         optimizer.zero_grad()
         outputs = net(inputs)
         loss = criterion(outputs, targets)
@@ -356,6 +391,8 @@ def epoch_iteration(train_loader, epoch: int,
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
+        if config['lr_scheduler'] == 'OneCycleLR':
+            scheduler.step()
 
         # progress_bar(batch_idx, len(train_loader),
         #              'Loss: %.3f | Acc: %.3f%% (%d/%d)'
