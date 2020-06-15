@@ -1,4 +1,4 @@
-import collections
+# import collections
 
 import numpy as np
 
@@ -23,17 +23,11 @@ class EarlyStop:
         if train_loss is None:
             return False
         # self.queue.append(train_loss)
-        print(f"Curr loss: {train_loss}")
-        print(f"Best loss: {self.best_loss}")
-        print(f"wait: {self.wait}")
         if np.less(train_loss - self.best_loss, -self.threshold):
             self.best_loss = train_loss
             self.wait = 0
         else:
-            print(f"Wait plus one")
             self.wait += 1
             if self.wait >= self.patience:
-                print(f"Return True")
                 return True
-        print(f"Return False")
         return False

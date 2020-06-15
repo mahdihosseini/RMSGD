@@ -105,7 +105,7 @@ def args(sub_parser: _SubParsersAction):
     sub_parser.add_argument(
         '--checkpoint', dest='checkpoint',
         default='.adas-checkpoint', type=str,
-        help="Set checkpoint path: Default = '.adas-checkpoint/ckpt.pth'")
+        help="Set checkpoint directory path: Default = '.adas-checkpoint")
     sub_parser.add_argument(
         '--root', dest='root',
         default='.', type=str,
@@ -179,24 +179,17 @@ def main(args: APNamespace):
         print(f"AdaS: Config path {config_path} does not exist")
         raise ValueError
     if not data_path.exists():
-        print(f"AdaS: Data dir {data_path} does not exists, building")
+        print(f"AdaS: Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"AdaS: Output dir {output_path} does not exists, building")
+        print(f"AdaS: Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         if args.resume:
             print(f"AdaS: Cannot resume from checkpoint without specifying " +
                   "checkpoint dir")
             raise ValueError
-        if checkpoint_path.is_dir():
-            print(f"AdaS: Checkpoint dir {checkpoint_path} does not exists, " +
-                  "building")
-            checkpoint_path.mkdir(exist_ok=True, parents=True)
-        else:
-            print(f"AdaS: Checkpoint path {checkpoint_path} doesn't exist " +
-                  "building directory to store checkpoints: .adas-checkpoint")
-            checkpoint_path.cwd().mkdir(exist_ok=True, parents=True)
+        checkpoint_path.mkdir(exist_ok=True, parents=True)
 
     with config_path.open() as f:
         config = yaml.load(f)
@@ -258,8 +251,8 @@ def main(args: APNamespace):
             lr_scheduler=config['lr_scheduler'],
             train_loader_len=len(train_loader),
             max_epochs=int(config['max_epoch']))
-        # early_stop = EarlyStop(patience=int(config['early_stop_patience']),
-        #                        threshold=float(config['early_stop_threshold']))
+        early_stop = EarlyStop(patience=int(config['early_stop_patience']),
+                               threshold=float(config['early_stop_threshold']))
 
         if device == 'cuda':
             net = torch.nn.DataParallel(net)
@@ -268,10 +261,11 @@ def main(args: APNamespace):
         if args.resume:
             # Load checkpoint.
             print("Adas: Resuming from checkpoint...")
-            if checkpoint_path.is_dir():
-                checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
-            else:
-                checkpoint = torch.load(str(checkpoint_path))
+            checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
+            # if checkpoint_path.is_dir():
+            #     checkpoint = torch.load(str(checkpoint_path / 'ckpt.pth'))
+            # else:
+            #     checkpoint = torch.load(str(checkpoint_path))
             net.load_state_dict(checkpoint['net'])
             best_acc = checkpoint['acc']
             start_epoch = checkpoint['epoch']
@@ -286,7 +280,7 @@ def main(args: APNamespace):
         epochs = range(start_epoch, start_epoch + config['max_epoch'])
         for epoch in epochs:
             start_time = time.time()
-            print(f"AdaS: Epoch {epoch}/{epochs[-1]} Started.")
+            # print(f"AdaS: Epoch {epoch}/{epochs[-1]} Started.")
             train_loss, train_accuracy = epoch_iteration(
                 train_loader, epoch, device, optimizer, scheduler)
             end_time = time.time()
@@ -295,10 +289,11 @@ def main(args: APNamespace):
             test_loss, test_accuracy = test_main(test_loader, epoch, device)
             total_time = time.time()
             print(
-                f"AdaS: Epoch {epoch}/{epochs[-1]} Ended | " +
+                f"AdaS: Trial {trial}/{config['n_trials'] - 1} | " +
+                f"Epoch {epoch}/{epochs[-1]} Ended | " +
                 "Total Time: {:.3f}s | ".format(total_time - start_time) +
                 "Epoch Time: {:.3f}s | ".format(end_time - start_time) +
-                "Est. Time Remaining: {:.3f}s | ".format(
+                "~Time Left: {:.3f}s | ".format(
                     (total_time - start_time) * (epochs[-1] - epoch)),
                 "Train Loss: {:.4f}% | Train Acc. {:.4f}% | ".format(
                     train_loss,
@@ -318,7 +313,7 @@ def main(args: APNamespace):
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
 
             df.to_excel(str(output_path / xlsx_name))
-            if early_stop(train_loss):
+            if early_stop(test_loss):
                 print("AdaS: Early stop activated.")
                 break
 
@@ -349,7 +344,7 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
     # Save checkpoint.
     acc = 100. * correct / total
     if acc > best_acc:
-        print('Adas: Saving checkpoint...')
+        # print('Adas: Saving checkpoint...')
         state = {
             'net': net.state_dict(),
             'acc': acc,
@@ -357,10 +352,11 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
         }
         if adas is not None:
             state['historical_io_metrics'] = adas.historical_io_metrics
-        if checkpoint_path.is_dir():
-            torch.save(state, str(checkpoint_path / 'ckpt.pth'))
-        else:
-            torch.save(state, str(checkpoint_path))
+        torch.save(state, str(checkpoint_path / 'ckpt.pth'))
+        # if checkpoint_path.is_dir():
+        #     torch.save(state, str(checkpoint_path / 'ckpt.pth'))
+        # else:
+        #     torch.save(state, str(checkpoint_path))
         best_acc = acc
     performance_statistics['acc_epoch_' + str(epoch)] = acc / 100
     return test_loss / (batch_idx + 1), acc
