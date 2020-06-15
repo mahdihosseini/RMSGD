@@ -269,6 +269,7 @@ The **Application Specific** parameters then are simply ones that the user must 
 
 
 ##### Available Datasets for Training #####
+---
 **yaml identifier: dataset**
 Currently only the following datasets are supported:
 - CIFAR10
@@ -276,6 +277,7 @@ Currently only the following datasets are supported:
 - ImageNet (see [Common Issues](#common-issues--running-list-))
 
 ##### Available Models for Training #####
+---
 **yaml identifier: network**
 All models used can be found in [src/adas/models](src/adas/models) in this repository are copied from [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar). We note that modifications were made to these models to allow variable `num_classes` to be used, relative to the dataset being used for training. The available models are as follows:
 - VGG16
@@ -293,6 +295,7 @@ All models used can be found in [src/adas/models](src/adas/models) in this repos
 - EfficientNetB0
 
 ##### Optimizer Method #####
+---
 **yaml identifier: optim_method**
 
 Options:
@@ -303,6 +306,7 @@ Options:
 - AdaDelta
 
 ##### Learning Rate Scheduler #####
+---
 **yaml identifier: lr_scheduler**
 
 Options:
@@ -312,27 +316,33 @@ Options:
 - OneCycleLR
 
 ##### Number of Training Trials #####
+---
 **yaml identifier: n_trials**
 
 Number of full training cycles
 
 ##### Beta #####
+---
 **yaml identifier: beta**
 
 AdaS gain factor. Tunes the AdaS behaviour. Smaller means faster convergence, but lower final testing loss, and vice-versa.
 
 ##### Initial Learning Rate #####
+---
 **yaml identifier: init_lr**
 
 Initial learning rate for the optimizer method
 
 ##### Max Epochs #####
+---
 **yaml identifier: max_epoch**
 
 Maximum number of epochs for one trial
 
 ##### Early Stopping Threshold #####
+---
 **yaml identifier: early_stop_threshold**
+
 ***Note that early stopping should only be used for the SGD with AdaS algorithm. As per the paper, AdaS provides the ability to monitor simply training loss and be confident that a low training loss leads to a high test accuracy/low testing loss. Hence, we only use early stop for SGD with AdaS, monitoring the training loss, and do not recommend its use otherwise. We note also that monitoring testing loss does little to improve in final accuracy, and only improves in how early the stopping occurs (generally about 5-10 earlier stop when using testing loss)***
 
 The threshold for early stopping. The early stopping criterion operates by keeping track of the best loss seen to date, and evaluates the current loss against the best loss by doing `current_loss - best_loss`. If this value is **greater than** the early stopping threshold, a counter begins. If this evaluation is true for `early_stop_patience` (see below) amount of epochs, then early stopping is activated.
@@ -342,26 +352,31 @@ To deactivate early_stopping, set this value to `-1`.
 We also want to highlight the choice of monitor for early stopping. That is, early stopping can monitor different loss criteria for determining when to early stop (train loss, test loss, etc.). In our setup, we monitor training loss, but highlight one could equally monitor test loss (with perhaps a change in threshold and patience values), or even train/test accuracy (with a modification to the early stopping criterion). We conclude that our recommended values are for training loss monitoring, and our criterion is only valid for monitoring `losses`.
 
 ##### Early Stopping Patience #####
+---
 **yaml identifier: early_stop_patience**
 
 Patience window for early stopping.
 
 ##### Mini-Batch Size #####
+---
 **yaml identifier: mini_batch_size**
 
 Size of mini-batch for one epoch
 
 ##### Minimum Learning Rate #####
+---
 **yaml identifier: mini_batch_size**
 
 Size of mini-batch for one epoch
 
 ##### Zeta #####
+---
 **yaml identifier: zeta**
 
 The knowledge-gain hyper-parameter, another AdaS hyper-parameter. Typically always set to 1.
 
 ##### Power #####
+---
 **yaml identifier: p**
 
 Power value for computing knowledge-gain. Can either be `1` or `2`.
