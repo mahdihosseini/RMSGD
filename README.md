@@ -157,19 +157,28 @@ Further, we state the following results for certain training configurations to g
 
 **config.yaml**:
 ```yaml
-dataset: 'CIFAR100'
-network: 'ResNet34'
-n_trials: 1
-max_epoch: 50
+###### Application Specific ######
+dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
+network: 'VGG16' # options: VGG166, DPN92, SENet18, densenet_cifar, GoogLeNet, ShuffleNetG2, ShuffleNetV2, ResNet34, ResNeXt29_2x64d, PreActResNet18, MobileNet, MobileNetV2, EfficientNetB0
+optim_method: 'SGD' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
+lr_scheduler: 'AdaS' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
+
+
+###### Suggested Tune ######
+n_trials: 5
+beta: 0.8
+init_lr: 0.03  # Application specific
+
+
+###### Suggested Default ######
+max_epoch: 150
+early_stop_threshold: 0.001 # set to -1 if you wish not to use early stop, or equally, set to a high value. Set to -1 if not using AdaS
+early_stop_patience: 10 # epoch window to consider when deciding whether to stop
 mini_batch_size: 128
 min_lr: 0.00000000000000000001
-init_lr: 0.03
-beta: 0.8
 zeta: 1.0
-p: 1
-loss: 'cross_entropy'
-optim_method: 'SGD' # or ADAM
-lr_scheduler: 'None' # or AdaS
+p: 1 # options: 1, 2.
+loss: 'cross_entropy' # options: cross_entropy
 ```
 |Optimizer|Learning Rate Scheduler|Epoch Time (avg.)|RAM (Memory) Consumed|GPU Memory Consumed|
 |---|---|---|---|---|
@@ -324,10 +333,13 @@ Maximum number of epochs for one trial
 
 ##### Early Stopping Threshold #####
 **yaml identifier: early_stop_threshold**
+***Note that early stopping should only be used for the SGD with AdaS algorithm. As per the paper, AdaS provides the ability to monitor simply training loss and be confident that a low training loss leads to a high test accuracy/low testing loss. Hence, we only use early stop for SGD with AdaS, monitoring the training loss, and do not recommend its use otherwise. We note also that monitoring testing loss does little to improve in final accuracy, and only improves in how early the stopping occurs (generally about 5-10 earlier stop when using testing loss)***
 
 The threshold for early stopping. The early stopping criterion operates by keeping track of the best loss seen to date, and evaluates the current loss against the best loss by doing `current_loss - best_loss`. If this value is **greater than** the early stopping threshold, a counter begins. If this evaluation is true for `early_stop_patience` (see below) amount of epochs, then early stopping is activated.
 
 To deactivate early_stopping, set this value to `-1`.
+
+We also want to highlight the choice of monitor for early stopping. That is, early stopping can monitor different loss criteria for determining when to early stop (train loss, test loss, etc.). In our setup, we monitor training loss, but highlight one could equally monitor test loss (with perhaps a change in threshold and patience values), or even train/test accuracy (with a modification to the early stopping criterion). We conclude that our recommended values are for training loss monitoring, and our criterion is only valid for monitoring `losses`.
 
 ##### Early Stopping Patience #####
 **yaml identifier: early_stop_patience**

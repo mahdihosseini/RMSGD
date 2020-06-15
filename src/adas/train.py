@@ -313,7 +313,7 @@ def main(args: APNamespace):
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
 
             df.to_excel(str(output_path / xlsx_name))
-            if early_stop(test_loss):
+            if early_stop(train_loss):
                 print("AdaS: Early stop activated.")
                 break
 
