@@ -229,6 +229,31 @@ optional arguments:
   -r, --resume          Flag: resume training from checkpoint
 ```
 #### Config Options ####
+In the following sections we list the configuration options available to the user. Note that we also classify the configuration options into the following categories:
+- Suggested Default
+  - max_epoch
+  - early_stop_threshold
+  - early_stop_patience
+  - min_lr
+  - zeta
+  - p
+  - loss
+- Suggested Tune
+  - n_trials
+  - beta
+  - init_lr
+- Application Specific
+  - dataset
+  - network
+  - optim_method
+  - lr_scheduler
+
+The **Suggested Default** parameters are ones we have preset and suggest not be altered too much. Naturally, the user may change them at their discretion, however these values were found to be stable and optimal.
+
+The **Suggested Tune** parameters are highly recommended to be tuned, and are very application specific.
+
+The **Application Specific** parameters then are simply ones that the user must change to do what they want (what dataset, model, learning algorithm, etc.)
+
 
 ##### Available Datasets for Training #####
 **yaml identifier: dataset**
@@ -254,15 +279,56 @@ All models used can be found in [src/adas/models](src/adas/models) in this repos
 - ShuffleNetV2
 - EfficientNetB0
 
+##### Optimizer Method #####
+**yaml identifier: optim_method**
+
+Options:
+- SGD
+- AdaM
+- AdaGrad
+- RMSProp
+- AdaDelta
+
+##### Learning Rate Scheduler #####
+**yaml identifier: lr_scheduler**
+
+Options:
+- AdaS (Note that `SGD` must be specified as the `optim_method`)
+- StepLR
+- CosineAnnealingWarmRestarts
+- OneCycleLR
+
 ##### Number of Training Trials #####
 **yaml identifier: n_trials**
 
 Number of full training cycles
 
+##### Beta #####
+**yaml identifier: beta**
+
+AdaS gain factor. Tunes the AdaS behaviour. Smaller means faster convergence, but lower final testing loss, and vice-versa.
+
+##### Initial Learning Rate #####
+**yaml identifier: init_lr**
+
+Initial learning rate for the optimizer method
+
 ##### Max Epochs #####
 **yaml identifier: max_epoch**
 
 Maximum number of epochs for one trial
+
+##### Early Stopping Threshold #####
+**yaml identifier: early_stop_threshold**
+
+The threshold for early stopping. The early stopping criterion operates by keeping track of the best loss seen to date, and evaluates the current loss against the best loss by doing `current_loss - best_loss`. If this value is **greater than** the early stopping threshold, a counter begins. If this evaluation is true for `early_stop_patience` (see below) amount of epochs, then early stopping is activated.
+
+To deactivate early_stopping, set this value to `-1`.
+
+##### Early Stopping Patience #####
+**yaml identifier: early_stop_patience**
+
+Patience window for early stopping.
 
 ##### Mini-Batch Size #####
 **yaml identifier: mini_batch_size**
@@ -273,6 +339,16 @@ Size of mini-batch for one epoch
 **yaml identifier: mini_batch_size**
 
 Size of mini-batch for one epoch
+
+##### Zeta #####
+**yaml identifier: zeta**
+
+The knowledge-gain hyper-parameter, another AdaS hyper-parameter. Typically always set to 1.
+
+##### Power #####
+**yaml identifier: p**
+
+Power value for computing knowledge-gain. Can either be `1` or `2`.
 
 
 #### Training Outputs ####
