@@ -229,7 +229,8 @@ Where you specify the path of you `config.yaml` file. Note the following options
 python -m adas train --help
 --
 usage: __main__.py train [-h] [--config CONFIG] [--data DATA]
-                         [--output OUTPUT] [--checkpoint CHECKPOINT] [-r]
+                         [--output OUTPUT] [--checkpoint CHECKPOINT]
+                         [--root ROOT] [-r]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -237,8 +238,9 @@ optional arguments:
   --data DATA           Set data directory path: Default = '.adas-data'
   --output OUTPUT       Set output directory path: Default = '.adas-output'
   --checkpoint CHECKPOINT
-                        Set checkpoint path: Default = '.adas-checkpoint/ckpt.pth'
-  --root ROOT           Set root path of project that parents all others: Default = '.'
+                        Set checkpoint directory path: Default = '.adas-checkpoint
+  --root ROOT           Set root path of project that parents all others:
+                        Default = '.'
   -r, --resume          Flag: resume training from checkpoint
 ```
 #### Config Options ####
