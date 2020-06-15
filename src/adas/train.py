@@ -147,6 +147,8 @@ def get_optimizer_scheduler(init_lr: float, optim_method: str,
         optimizer = torch.optim.Adadelta(net.parameters(), lr=init_lr)
     elif optim_method == 'AdaBound':
         optimizer = AdaBound(net.parameters(), lr=init_lr)
+    else:
+        print(f"Adas: Warning: Unknown optimizer {optim_method}")
     if lr_scheduler == 'StepLR':
         scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, step_size=70, gamma=0.1)
@@ -159,6 +161,8 @@ def get_optimizer_scheduler(init_lr: float, optim_method: str,
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer, max_lr=init_lr,
             steps_per_epoch=train_loader_len, epochs=max_epochs)
+    elif lr_scheduler != 'AdaS':
+        print(f"Adas: Warning: Unknown LR scheduler {lr_scheduler}")
     return (optimizer, scheduler)
 
 
@@ -198,11 +202,12 @@ def main(args: APNamespace):
         config = yaml.load(f)
     print("Adas: Argument Parser Options")
     print("-"*45)
-    print(f"    {'config':<20}: {args.config:<20}")
-    print(f"    {'data':<20}: {args.data:<20}")
-    print(f"    {'output':<20}: {args.output:<20}")
-    print(f"    {'checkpoint':<20}: {args.checkpoint:<20}")
-    print(f"    {'resume':<20}: {args.resume:<20}")
+    print(f"    {'config':<20}: {args.config:<40}")
+    print(f"    {'data':<20}: {str(Path(args.root) / args.data):<40}")
+    print(f"    {'output':<20}: {str(Path(args.root) / args.output):<40}")
+    print(f"    {'checkpoint':<20}: {str(Path(args.root) / args.checkpoint):<40}")
+    print(f"    {'root':<20}: {args.root:<40}")
+    print(f"    {'resume':<20}: {'True' if args.resume else 'False':<20}")
     print("\nAdas: Train: Config")
     print(f"    {'Key':<20} {'Value':<20}")
     print("-"*45)

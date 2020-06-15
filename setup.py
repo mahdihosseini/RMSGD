@@ -8,9 +8,37 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
-    url='https://github.com/mahdihosseini/AdaS',
+    # url='https://github.com/mahdihosseini/AdaS',
     python_requires='~=3.7',
     install_requires=[
+        'attrs==19.3.0',
+        'coverage==5.1',
+        'et-xmlfile==1.0.1',
+        'future==0.18.2',
+        'importlib-metadata==1.6.1',
+        'jdcal==1.4.1',
+        'more-itertools==8.3.0',
+        'numpy==1.18.5',
+        'openpyxl==3.0.3',
+        'packaging==20.4',
+        'pandas==1.0.4',
+        'Pillow==7.1.2',
+        'pluggy==0.13.1',
+        'py==1.8.1',
+        'pyparsing==2.4.7',
+        'pytest==5.4.3',
+        'pytest-cov==2.9.0',
+        'pytest-cover==3.0.0',
+        'pytest-coverage==0.0',
+        'python-dateutil==2.8.1',
+        'pytz==2020.1',
+        'PyYAML==5.3.1',
+        'scipy==1.4.1',
+        'six==1.15.0',
+        'torch==1.5.0',
+        'torchvision==0.6.0',
+        'wcwidth==0.2.4',
+        'zipp==3.1.0'
     ],
     extras_require={
         'docs': [
@@ -27,7 +55,7 @@ setup(
         # packages
     ],
     setup_requires=[
-        'setuptools_scm',  # for git-based versioning
+        # 'setuptools_scm',  # for git-based versioning
     ],
     # DO NOT do tests_require; just call pytest or python -m pytest.
     license='License :: Other/Proprietary License',

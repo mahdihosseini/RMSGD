@@ -1,15 +1,15 @@
-dataset: 'CIFAR100' # options: CIFAR100, CIFAR10, ImageNet
-network: 'ResNet34' # options: VGG166, DPN92, SENet18, densenet_cifar, GoogLeNet, ShuffleNetG2, ShuffleNetV2, ResNet34, ResNeXt29_2x64d, PreActResNet18, MobileNet, MobileNetV2, EfficientNetB0
-n_trials: 1
+dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
+network: 'VGG16' # options: VGG166, DPN92, SENet18, densenet_cifar, GoogLeNet, ShuffleNetG2, ShuffleNetV2, ResNet34, ResNeXt29_2x64d, PreActResNet18, MobileNet, MobileNetV2, EfficientNetB0
+n_trials: 5
 max_epoch: 150
-early_stop_threshold: 0.1 # set to -1 if you wish not to use early stop, or equally, set to a high value
-early_stop_patience: 2 # epoch window to consider when deciding whether to stop
+early_stop_threshold: 0.001 # set to -1 if you wish not to use early stop, or equally, set to a high value
+early_stop_patience: 10 # epoch window to consider when deciding whether to stop
 mini_batch_size: 128
 min_lr: 0.00000000000000000001
-init_lr: 0.03
+init_lr: 0.001
 beta: 0.8
 zeta: 1.0
 p: 1
 loss: 'cross_entropy' # options: cross_entropy
-optim_method: '' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta, AdaBound
-lr_scheduler: 'None' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
+optim_method: 'SGD' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
+lr_scheduler: 'AdaS' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR

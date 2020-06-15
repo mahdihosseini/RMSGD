@@ -22,11 +22,11 @@
   * [Unpackaged Python](#unpackaged-python)
 - [Usage](#usage)
   * [Training](#training)
+    + [Available Models for Training](#available-models-for-training)
+    + [Available Datasets for Training](#available-datasets-for-training)
   * [Training Outputs](#training-outputs)
     + [XLSX Output](#xlsx-output)
     + [Checkpoints](#checkpoints)
-  * [Available Models for Training](#available-models-for-training)
-  * [Available Datasets for Training](#available-datasets-for-training)
 - [Common Issues (running list)](#common-issues--running-list-)
 - [Pytest](#pytest)
 
@@ -183,14 +183,13 @@ pip install git+https://mahdihosseini/AdaS
 in the terminal
 
 ##### Repository Cloning #####
-First, clone the repository
-```console
-git clone https://github.com/mahdihosseini/AdaS.git
-```
-Following, there are two options here:
+If you **have** git installed
 1. move `src/adas` into your project directory, and `import`/use it as any other python package
   1. `from adas import AdaS` for example to import the `AdaS` module within the package
-2. Navigate into the `AdaS` top-level directory and run `pip install -e .` in the terminal
+
+If you **don't** have git installed
+1. 
+
 
 #### Unpackaged Python ####
 
@@ -229,6 +228,52 @@ optional arguments:
   --root ROOT           Set root path of project that parents all others: Default = '.'
   -r, --resume          Flag: resume training from checkpoint
 ```
+#### Config Options ####
+
+##### Available Datasets for Training #####
+**yaml identifier: dataset**
+Currently only the following datasets are supported:
+- CIFAR10
+- CIFAR100
+- ImageNet (see [Common Issues](#common-issues--running-list-))
+
+##### Available Models for Training #####
+**yaml identifier: network**
+All models used can be found in [src/adas/models](src/adas/models) in this repository are copied from [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar). We note that modifications were made to these models to allow variable `num_classes` to be used, relative to the dataset being used for training. The available models are as follows:
+- VGG16
+- ResNet34
+- PreActResNet18
+- GoogLeNet
+- densenet_cifar
+- ResNeXt29_2x64d
+- MobileNet
+- MobileNetV2
+- DPN92
+- ShuffleNetG2
+- SENet18
+- ShuffleNetV2
+- EfficientNetB0
+
+##### Number of Training Trials #####
+**yaml identifier: n_trials**
+
+Number of full training cycles
+
+##### Max Epochs #####
+**yaml identifier: max_epoch**
+
+Maximum number of epochs for one trial
+
+##### Mini-Batch Size #####
+**yaml identifier: mini_batch_size**
+
+Size of mini-batch for one epoch
+
+##### Minimum Learning Rate #####
+**yaml identifier: mini_batch_size**
+
+Size of mini-batch for one epoch
+
 
 #### Training Outputs ####
 ##### XLSX Output #####
@@ -272,28 +317,6 @@ The location of the output `.xlsx` file depends on the `-root` and `--output` op
 
 ##### Checkpoints #####
 Checkpoints are saved to the path specified by the `-root` and `--checkpoint` option. A file or directory may be passed. If a directory path is specified, the filename for the checkpoint defaults to `ckpt.pth`.
-
-#### Available Models for Training ####
-All models used can be found in [src/adas/models](src/adas/models) in this repository are copied from [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar). We note that modifications were made to these models to allow variable `num_classes` to be used, relative to the dataset being used for training. The available models are as follows:
-- VGG16
-- ResNet34
-- PreActResNet18
-- GoogLeNet
-- densenet_cifar
-- ResNeXt29_2x64d
-- MobileNet
-- MobileNetV2
-- DPN92
-- ShuffleNetG2
-- SENet18
-- ShuffleNetV2
-- EfficientNetB0
-
-#### Available Datasets for Training ####
-Currently only the following datasets are supported:
-- CIFAR10
-- CIFAR100
-- ImageNet (see [Common Issues](#common-issues--running-list-))
 
 
 ### Common Issues (running list) ###
