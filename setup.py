@@ -13,10 +13,13 @@ setup(
     install_requires=[
         'attrs==19.3.0',
         'coverage==5.1',
+        'cycler==0.10.0',
         'et-xmlfile==1.0.1',
         'future==0.18.2',
         'importlib-metadata==1.6.1',
         'jdcal==1.4.1',
+        'kiwisolver==1.2.0',
+        'matplotlib==3.2.1',
         'more-itertools==8.3.0',
         'numpy==1.18.5',
         'openpyxl==3.0.3',
@@ -38,6 +41,7 @@ setup(
         'torch==1.5.0',
         'torchvision==0.6.0',
         'wcwidth==0.2.4',
+        'xlrd==1.2.0',
         'zipp==3.1.0'
     ],
     extras_require={
