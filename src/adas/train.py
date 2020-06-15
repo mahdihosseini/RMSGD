@@ -258,8 +258,8 @@ def main(args: APNamespace):
             lr_scheduler=config['lr_scheduler'],
             train_loader_len=len(train_loader),
             max_epochs=int(config['max_epoch']))
-        early_stop = EarlyStop(patience=int(config['early_stop_patience']),
-                               threshold=float(config['early_stop_threshold']))
+        # early_stop = EarlyStop(patience=int(config['early_stop_patience']),
+        #                        threshold=float(config['early_stop_threshold']))
 
         if device == 'cuda':
             net = torch.nn.DataParallel(net)
