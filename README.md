@@ -22,11 +22,25 @@
   * [Unpackaged Python](#unpackaged-python)
 - [Usage](#usage)
   * [Training](#training)
-    + [Available Models for Training](#available-models-for-training)
+  * [Config Options](#config-options)
     + [Available Datasets for Training](#available-datasets-for-training)
+    + [Available Models for Training](#available-models-for-training)
+    + [Optimizer Method](#optimizer-method)
+    + [Learning Rate Scheduler](#learning-rate-scheduler)
+    + [Number of Training Trials](#number-of-training-trials)
+    + [Beta](#beta)
+    + [Initial Learning Rate](#initial-learning-rate)
+    + [Max Epochs](#max-epochs)
+    + [Early Stopping Threshold](#early-stopping-threshold)
+    + [Early Stopping Patience](#early-stopping-patience)
+    + [Mini-Batch Size](#mini-batch-size)
+    + [Minimum Learning Rate](#minimum-learning-rate)
+    + [Zeta](#zeta)
+    + [Power](#power)
   * [Training Outputs](#training-outputs)
     + [XLSX Output](#xlsx-output)
     + [Checkpoints](#checkpoints)
+  * [Plotting Graphs](#plotting-graphs)
 - [Common Issues (running list)](#common-issues--running-list-)
 - [Pytest](#pytest)
 
@@ -175,21 +189,11 @@ There are two version of the AdaS code contained in this repository.
 
 ---
 
-##### Direct pip-installation #####
-pip install directly, typing
-```console
-pip install git+https://mahdihosseini/AdaS
-```
-in the terminal
-
 ##### Repository Cloning #####
-If you **have** git installed
-1. move `src/adas` into your project directory, and `import`/use it as any other python package
-  1. `from adas import AdaS` for example to import the `AdaS` module within the package
-
-If you **don't** have git installed
-1. 
-
+After cloning the repository, simple run
+```console
+python setup.py build
+```
 
 #### Unpackaged Python ####
 
@@ -393,6 +397,18 @@ The location of the output `.xlsx` file depends on the `-root` and `--output` op
 
 ##### Checkpoints #####
 Checkpoints are saved to the path specified by the `-root` and `--checkpoint` option. A file or directory may be passed. If a directory path is specified, the filename for the checkpoint defaults to `ckpt.pth`.
+
+#### Plotting Graphs ####
+We provide some scripts to recreate the graphs seen in the [paper](https://arxiv.org/abs/2006.06587), or as seen here in Figures 1 and 2.
+- For Figure 1, see [scripts/test_accuracy_training_loss.py](scripts/est_accuracy_training_loss.py) and [scripts/test_accuracy_training_loss_comparison.py](scripts/test_accuracy_training_loss_comparison.py)
+- For the gifs Figure 2 (in this README), see [scripts/knowledge_gain_vs_mapping_condition_graphs.py](scripts/knowledge_gain_vs_mapping_condition_graphs.py)
+]()
+- For Figure 2 (from the paper), see [scripts/](). This script is again, not cleaned, but combined with the script mentioned in the above bullet, it should be easy to figure out what's going on.
+- For supplementary figures, see [scripts/evalutate_excell_data_AdaLRT.py](scripts/evalutate_excell_data_AdaLRT.py) and [scripts/evalutate_excell_data_condition_study.py](scripts/evalutate_excell_data_condition_study.py)
+
+Each file is different in its expectations of file dirs. We provide some sripts that are cleaned up, and some not. The provided scripts are intended as examples and should be catered to your specfic scenario since everyone will store/organize files differently.
+
+Note that [scripts/test_accuracy_training_loss_comparison.py](scripts/test_accuracy_training_loss_comparison.py) and [scripts/demo_knowledge_gain_vs_proj_stability.py](scripts/demo_knowledge_gain_vs_proj_stability.py) is expecting the directory to be structured as `../{CIFAR10,CIFAR100}/{VGG16,ResNet34}/{names of folders for different methods}/{names of excel files}`, where `{CIFAR10,CIFAR100}`, means both `CIFAR10` and `CIFAR100` are present, for example.
 
 
 ### Common Issues (running list) ###
