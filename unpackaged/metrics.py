@@ -118,11 +118,11 @@ class Metrics():
                     #     variables_performance['in_condition_epoch_' +
                     #                           str(epoch - 1)][block_index])
                     input_channel_rank.append(
-                        self.historical_metrics[-1].input_channel_rank)
+                        self.historical_metrics[-1].input_channel_rank[block_index])
                     input_channel_S.append(
-                        self.historical_metrics[-1].input_channel_S)
+                        self.historical_metrics[-1].input_channel_S[block_index])
                     input_channel_condition.append(
-                        self.historical_metrics[-1].input_channel_condition)
+                        self.historical_metrics[-1].input_channel_condition[block_index])
                 else:
                     input_channel_rank.append(0)
                     input_channel_S.append(0)
@@ -165,11 +165,11 @@ class Metrics():
                     #     variables_performance['out_condition_epoch_' +
                     #                           str(epoch - 1)][block_index])
                     output_channel_rank.append(
-                        self.historical_metrics[-1].output_channel_rank)
+                        self.historical_metrics[-1].output_channel_rank[block_index])
                     output_channel_S.append(
-                        self.historical_metrics[-1].output_channel_S)
+                        self.historical_metrics[-1].output_channel_S[block_index])
                     output_channel_condition.append(
-                        self.historical_metrics[-1].output_channel_condition)
+                        self.historical_metrics[-1].output_channel_condition[block_index])
                 else:
                     output_channel_rank.append(0)
                     output_channel_S.append(0)
