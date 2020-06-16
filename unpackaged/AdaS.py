@@ -25,7 +25,7 @@ from typing import List, Any
 import numpy as np
 
 from metrics import Metrics
-from components import IOMetrics, LRMetrics
+from components import LRMetrics  # IOMetrics
 
 
 class AdaS():
@@ -56,7 +56,6 @@ class AdaS():
         self.min_lr = min_lr
         self.beta = beta
         self.zeta = zeta
-        self.historical_io_metrics = list()
 
         init_lr_vector = np.repeat(a=init_lr,
                                    repeats=len(metrics.layers_info))
@@ -68,10 +67,7 @@ class AdaS():
         self.acceleration_moment_fc = np.zeros(metrics.number_of_fc)[0]
         self.R_fc = np.zeros(metrics.number_of_fc)[0]
 
-    def step(self, epoch: int, io_metrics: IOMetrics = None) -> None:
-        if io_metrics is None:
-            io_metrics = self.metrics.evaluate(epoch)
-        self.historical_io_metrics.append(io_metrics)
+    def step(self, epoch: int, metrics: Metrics = None) -> None:
         if epoch == 0:
             velocity_conv_rank = self.init_lr * \
                 np.ones(len(self.metrics.conv_indices))
@@ -84,17 +80,17 @@ class AdaS():
         else:
             n_replica = AdaS.n_buffer - min(epoch + 1, AdaS.n_buffer)
             input_channel_replica = np.tile(
-                A=self.historical_io_metrics[0].input_channel_S,
+                A=metrics.historical_metrics[0].input_channel_S,
                 reps=(n_replica, 1))
             output_channel_replica = np.tile(
-                A=self.historical_io_metrics[0].output_channel_S,
+                A=metrics.historical_metrics[0].output_channel_S,
                 reps=(n_replica, 1))
             fc_channel_replica = np.tile(
-                A=self.historical_io_metrics[0].fc_S, reps=(n_replica, 1))
+                A=metrics.historical_metrics[0].fc_S, reps=(n_replica, 1))
             for iteration in range(AdaS.n_buffer - n_replica):
                 epoch_identifier = (epoch - AdaS.n_buffer +
                                     n_replica + iteration + 1)
-                metric = self.historical_io_metrics[epoch_identifier]
+                metric = metrics.historical_metrics[epoch_identifier]
                 input_channel_replica = np.concatenate((
                     input_channel_replica,
                     np.tile(

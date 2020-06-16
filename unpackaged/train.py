@@ -38,8 +38,7 @@ import yaml
 # from .test import main as test_main
 # from .utils import progress_bar
 from early_stop import EarlyStop
-from optim.sgd import SGDVec
-from optim.adabound import AdaBound
+from optim import get_optimizer_scheduler
 from metrics import Metrics
 from models import get_net
 from data import get_data
@@ -123,50 +122,6 @@ def get_loss(loss: str) -> torch.nn.Module:
         None
 
 
-def get_optimizer_scheduler(init_lr: float, optim_method: str,
-                            lr_scheduler: str,
-                            train_loader_len: int,
-                            max_epochs: int) -> torch.nn.Module:
-    optimizer = None
-    scheduler = None
-    if optim_method == 'SGD':
-        if lr_scheduler == 'AdaS':
-            optimizer = SGDVec(
-                net.parameters(), lr=init_lr,
-                momentum=0.9, weight_decay=5e-4)
-        else:
-            optimizer = torch.optim.SGD(
-                net.parameters(), lr=init_lr,
-                momentum=0.9, weight_decay=5e-4)
-    elif optim_method == 'AdaM':
-        optimizer = torch.optim.Adam(net.parameters(), lr=init_lr)
-    elif optim_method == 'AdaGrad':
-        optimizer = torch.optim.Adagrad(net.parameters(), lr=init_lr)
-    elif optim_method == 'RMSProp':
-        optimizer = torch.optim.RMSprop(net.parameters(), lr=init_lr)
-    elif optim_method == 'AdaDelta':
-        optimizer = torch.optim.Adadelta(net.parameters(), lr=init_lr)
-    elif optim_method == 'AdaBound':
-        optimizer = AdaBound(net.parameters(), lr=init_lr)
-    else:
-        print(f"Adas: Warning: Unknown optimizer {optim_method}")
-    if lr_scheduler == 'StepLR':
-        scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, step_size=70, gamma=0.1)
-    elif lr_scheduler == 'CosineAnnealingWarmRestarts':
-        first_restart_epochs = 25
-        increasing_factor = 1
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-            optimizer, T_0=first_restart_epochs, T_mult=increasing_factor)
-    elif lr_scheduler == 'OneCycleLR':
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            optimizer, max_lr=init_lr,
-            steps_per_epoch=train_loader_len, epochs=max_epochs)
-    elif lr_scheduler != 'AdaS':
-        print(f"Adas: Warning: Unknown LR scheduler {lr_scheduler}")
-    return (optimizer, scheduler)
-
-
 def main(args: APNamespace):
     root_path = Path(args.root).expanduser()
     config_path = Path(args.config).expanduser()
@@ -199,7 +154,8 @@ def main(args: APNamespace):
     print(f"    {'config':<20}: {args.config:<40}")
     print(f"    {'data':<20}: {str(Path(args.root) / args.data):<40}")
     print(f"    {'output':<20}: {str(Path(args.root) / args.output):<40}")
-    print(f"    {'checkpoint':<20}: {str(Path(args.root) / args.checkpoint):<40}")
+    print(f"    {'checkpoint':<20}: " +
+          f"{str(Path(args.root) / args.checkpoint):<40}")
     print(f"    {'root':<20}: {args.root:<40}")
     print(f"    {'resume':<20}: {'True' if args.resume else 'False':<20}")
     print("\nAdas: Train: Config")
@@ -208,6 +164,7 @@ def main(args: APNamespace):
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"AdaS: Pytorch device is set to {device}")
     global best_acc
     best_acc = 0  # best test accuracy
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
@@ -245,8 +202,8 @@ def main(args: APNamespace):
         global criterion
         criterion = get_loss(config['loss'])
 
-        # TODO config
         optimizer, scheduler = get_optimizer_scheduler(
+            net_parameters=net.parameters(),
             init_lr=float(config['init_lr']),
             optim_method=config['optim_method'],
             lr_scheduler=config['lr_scheduler'],
@@ -271,7 +228,7 @@ def main(args: APNamespace):
             best_acc = checkpoint['acc']
             start_epoch = checkpoint['epoch']
             if adas is not None:
-                adas.historical_io_metrics = \
+                metrics.historical_metrics = \
                     checkpoint['historical_io_metrics']
 
         # model_parameters = filter(lambda p: p.requires_grad,
@@ -352,7 +309,7 @@ def test_main(test_loader, epoch: int, device) -> Tuple[float, float]:
             'epoch': epoch + 1,
         }
         if adas is not None:
-            state['historical_io_metrics'] = adas.historical_io_metrics
+            state['historical_io_metrics'] = metrics.historical_metrics
         torch.save(state, str(checkpoint_path / 'ckpt.pth'))
         # if checkpoint_path.is_dir():
         #     torch.save(state, str(checkpoint_path / 'ckpt.pth'))
@@ -419,7 +376,7 @@ def epoch_iteration(train_loader, epoch: int,
     performance_statistics['out_condition_epoch_' +
                            str(epoch)] = io_metrics.output_channel_condition
     if adas is not None:
-        lrmetrics = adas.step(epoch, io_metrics)
+        lrmetrics = adas.step(epoch, metrics)
         performance_statistics['rank_velocity_epoch_' +
                                str(epoch)] = lrmetrics.rank_velocity
         performance_statistics['learning_rate_' +
