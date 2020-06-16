@@ -358,7 +358,6 @@ def epoch_iteration(train_loader, epoch: int,
                            str(epoch)] = train_loss / (batch_idx + 1)
 
     io_metrics = metrics.evaluate(epoch)
-    print(metrics.historical_metrics)
     performance_statistics['in_S_epoch_' +
                            str(epoch)] = io_metrics.input_channel_S
     performance_statistics['out_S_epoch_' +
