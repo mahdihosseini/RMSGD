@@ -40,6 +40,7 @@ class Metrics():
         self.number_of_conv = 0
         self.number_of_fc = 0
         self.p = p
+        self.historical_metrics = list()
         for iteration_block in range(len(net_blocks)):
             block_shape = net_blocks[iteration_block].shape
             if len(block_shape) == 4:
@@ -116,9 +117,12 @@ class Metrics():
                     # input_channel_condition.append(
                     #     variables_performance['in_condition_epoch_' +
                     #                           str(epoch - 1)][block_index])
-                    input_channel_rank.append(None)
-                    input_channel_S.append(None)
-                    input_channel_condition.append(None)
+                    input_channel_rank.append(
+                        self.historical_metrics[-1].input_channel_rank)
+                    input_channel_S.append(
+                        self.historical_metrics[-1].input_channel_S)
+                    input_channel_condition.append(
+                        self.historical_metrics[-1].input_channel_condition)
                 else:
                     input_channel_rank.append(0)
                     input_channel_S.append(0)
@@ -160,18 +164,23 @@ class Metrics():
                     # output_channel_condition.append(
                     #     variables_performance['out_condition_epoch_' +
                     #                           str(epoch - 1)][block_index])
-                    output_channel_rank.append(None)
-                    output_channel_S.append(None)
-                    output_channel_condition.append(None)
+                    output_channel_rank.append(
+                        self.historical_metrics[-1].output_channel_rank)
+                    output_channel_S.append(
+                        self.historical_metrics[-1].output_channel_S)
+                    output_channel_condition.append(
+                        self.historical_metrics[-1].output_channel_condition)
                 else:
                     output_channel_rank.append(0)
                     output_channel_S.append(0)
                     output_channel_condition.append(0)
-        return IOMetrics(input_channel_rank=input_channel_rank,
-                         input_channel_S=input_channel_S,
-                         input_channel_condition=input_channel_condition,
-                         output_channel_rank=output_channel_rank,
-                         output_channel_S=output_channel_S,
-                         output_channel_condition=output_channel_condition,
-                         fc_S=output_channel_S[-1],
-                         fc_rank=output_channel_rank[-1])
+        metrics = IOMetrics(input_channel_rank=input_channel_rank,
+                            input_channel_S=input_channel_S,
+                            input_channel_condition=input_channel_condition,
+                            output_channel_rank=output_channel_rank,
+                            output_channel_S=output_channel_S,
+                            output_channel_condition=output_channel_condition,
+                            fc_S=output_channel_S[-1],
+                            fc_rank=output_channel_rank[-1])
+        self.historical_metrics.append(metrics)
+        return metrics
