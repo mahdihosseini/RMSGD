@@ -262,12 +262,12 @@ def main(args: APNamespace):
             if config['lr_scheduler'] == 'AdaS':
                 xlsx_name = \
                     f"config['optim_method']_AdaS_trial={trial}_" +\
-                    f"beta={config['beta']}_initlr=config['init_lr']_" +\
+                    f"beta={config['beta']}_initlr={config['init_lr']}_" +\
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
             else:
                 xlsx_name = \
                     f"config['optim_method']_config['lr_scheduler']_" +\
-                    f"trial={trial}_initlr=config['init_lr']" +\
+                    f"trial={trial}_initlr={config['init_lr']}" +\
                     f"net={config['network']}_dataset={config['dataset']}.xlsx"
 
             df.to_excel(str(output_path / xlsx_name))
