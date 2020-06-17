@@ -221,6 +221,10 @@ python train.py --...
 Where `--...` represents the options for training (see below)
 
 ### Usage ###
+#### Important Note ####
+1. Zeros in the xlsx file
+  1. If you observe numerous, or even a couple zeros in the xlsx file, under the `in_S_epoch_X` or `out_S_epoch_X`, then you are most likely using too small a learning rate, and should increase the initial learning rate
+
 #### Training ####
 As this is a self-contained python module, all functionalities are built in once you `pip`-install the package. To start training, you must first define you configuration file. An example can be found at [src/adas/config.yaml](src/adas/config.yaml). Finally, run
 ```console
