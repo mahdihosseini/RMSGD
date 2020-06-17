@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2020 Mahdi S. Hosseini and Mathieu Tuli
+Copyright (c) 2020 Mahdi S. Hosseini
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -246,8 +246,8 @@ def main(args: APNamespace):
             test_loss, test_accuracy = test_main(test_loader, epoch, device)
             total_time = time.time()
             print(
-                f"AdaS: Trial {trial}/{config['n_trials'] - 1} | " +
-                f"Epoch {epoch}/{epochs[-1]} Ended | " +
+                f"AdaS: Trial {trial + 1}/{config['n_trials']} | " +
+                f"Epoch {epoch + 1}/{epochs[-1] + 1} Ended | " +
                 "Total Time: {:.3f}s | ".format(total_time - start_time) +
                 "Epoch Time: {:.3f}s | ".format(end_time - start_time) +
                 "~Time Left: {:.3f}s | ".format(

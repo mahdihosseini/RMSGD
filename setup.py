@@ -63,8 +63,8 @@ setup(
     ],
     # DO NOT do tests_require; just call pytest or python -m pytest.
     license='License :: Other/Proprietary License',
-    author='Mahdi Hosseini, Mathieu Tuli',
-    author_email='mahdi.hosseini@mail.utoronto.ca, tuli.mathieu@gmail.com',
+    author='Mahdi Hosseini',
+    author_email='mahdi.hosseini@mail.utoronto.ca',
     description='Python package for AdaS: Adaptive Scheduling of Stochastic Gradients',
     classifiers=[
         'Development Status :: 4 - Beta',
