@@ -73,6 +73,8 @@ class Metrics():
         output_channel_S = list()
         input_channel_condition = list()
         output_channel_condition = list()
+        factorized_index_3 = np.zeros(len(self.conv_indices), dtype=bool)
+        factorized_index_4 = np.zeros(len(self.conv_indices), dtype=bool)
         for block_index in range(len(self.conv_indices)):
             layer_tensor = self.net_blocks[self.conv_indices[block_index]].data
             tensor_size = layer_tensor.shape
@@ -99,6 +101,7 @@ class Metrics():
                 else:
                     input_channel_condition.append(0)
                     sum_low_rank_eigen = 0
+                factorized_index_3[block_index] = True
                 input_channel_S.append(sum_low_rank_eigen / tensor_size[1])
                 # NOTE never used (below)
                 # mode_3_unfold_approx = torch.matmul(
@@ -146,6 +149,7 @@ class Metrics():
                 output_channel_S.append(
                     sum_low_rank_eigen / tensor_size[0])
                 # NOTE never used (below)
+                factorized_index_4[block_index] = True
                 # mode_4_unfold_approx = torch.matmul(
                 #     U_approx, torch.matmul(S_approx, torch.t(V_approx)))
             except Exception:
@@ -174,6 +178,22 @@ class Metrics():
                     output_channel_rank.append(0)
                     output_channel_S.append(0)
                     output_channel_condition.append(0)
+        false_indices_3 = [i for i in range(len(factorized_index_3))
+                           if factorized_index_3[i] is False]
+        false_indices_4 = [i for i in range(len(factorized_index_4))
+                           if factorized_index_4[i] is False]
+        for false_index in false_indices_3:
+            input_channel_S[false_index] = input_channel_S[false_index - 1]
+            input_channel_rank[false_index] = \
+                input_channel_rank[false_index - 1]
+            input_channel_condition[false_index] = \
+                input_channel_condition[false_index - 1]
+        for false_index in false_indices_4:
+            output_channel_S[false_index] = output_channel_S[false_index - 1]
+            output_channel_rank[false_index] = \
+                output_channel_rank[false_index - 1]
+            output_channel_condition[false_index] = \
+                output_channel_condition[false_index - 1]
         metrics = IOMetrics(input_channel_rank=input_channel_rank,
                             input_channel_S=input_channel_S,
                             input_channel_condition=input_channel_condition,
