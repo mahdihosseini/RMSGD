@@ -182,9 +182,9 @@ loss: 'cross_entropy' # options: cross_entropy
 ```
 |Optimizer|Learning Rate Scheduler|Epoch Time (avg.)|RAM (Memory) Consumed|GPU Memory Consumed|
 |---|---|---|---|---|
-|SGD|None|40-43 seconds |~6.2 GB|~3.75 GB|
-|SGD|AdaS|40-43 seconds |~6.2 GB|~3.75 GB|
-|ADAM|None|40-43 seconds|~6.2 GB|~3.75 GB|
+|SGD|None|40-43 seconds |~2.75 GB|~3.0 GB|
+|SGD|AdaS|40-43 seconds |~2.75 GB|~3.0 GB|
+|ADAM|None|40-43 seconds|~2.75 GB|~3.0 GB|
 
 
 We identify that each experiment is identical is computational performance.
