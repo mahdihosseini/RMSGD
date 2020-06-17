@@ -21,6 +21,7 @@
     + [Repository Cloning](#repository-cloning)
   * [Unpackaged Python](#unpackaged-python)
 - [Usage](#usage)
+  * [Important Note](#important-note)
   * [Training](#training)
   * [Config Options](#config-options)
     + [Available Datasets for Training](#available-datasets-for-training)
