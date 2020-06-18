@@ -169,7 +169,7 @@ def main(args: APNamespace):
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
     if np.less(float(config['early_stop_threshold']), 0):
         print("AdaS: Notice: early stop will not be used as it was set to " +
-              "{early_stop}, training till completion.")
+              f"{early_stop}, training till completion.")
 
     for trial in range(config['n_trials']):
         device
