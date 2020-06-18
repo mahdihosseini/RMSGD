@@ -78,11 +78,11 @@ class Metrics():
         for block_index in range(len(self.conv_indices)):
             layer_tensor = self.net_blocks[self.conv_indices[block_index]].data
             tensor_size = layer_tensor.shape
-            mode_3_unfold = layer_tensor.permute(1, 0, 2, 3).cpu()
+            mode_3_unfold = layer_tensor.permute(1, 0, 2, 3)  # .cpu()
             mode_3_unfold = torch.reshape(
                 mode_3_unfold, [tensor_size[1], tensor_size[0] *
                                 tensor_size[2] * tensor_size[3]])
-            mode_4_unfold = layer_tensor.cpu()
+            mode_4_unfold = layer_tensor  # .cpu()
             mode_4_unfold = torch.reshape(
                 mode_4_unfold, [tensor_size[0], tensor_size[1] *
                                 tensor_size[2] * tensor_size[3]])
