@@ -10,9 +10,9 @@ color_codes = [(1, 0, 0), (0.8, 0, 0), (0.6, 0, 0), (0.4, 0, 0),
                (0.3, 0, 0), 'steelblue', 'b', 'g', 'c', 'm', 'y', 'orange']
 line_style = ['-', '-', '-', '-', '-', '--',
               '--', '--', '--', '--', '--', '--']
-evaluating_folders = ['SGD_AdaLRT_alpha_0.800', 'SGD_AdaLRT_alpha_0.850',
-                      'SGD_AdaLRT_alpha_0.900', 'SGD_AdaLRT_alpha_0.950',
-                      'SGD_AdaLRT_alpha_0.975',
+evaluating_folders = ['SGD_AdaS_alpha_0.800', 'SGD_AdaS_alpha_0.850',
+                      'SGD_AdaS_alpha_0.900', 'SGD_AdaS_alpha_0.950',
+                      'SGD_AdaS_alpha_0.975',
                       'SGD_OneCycleLR_epoch_25', 'SGD_OneCycleLR_epoch_50',
                       'SGD_StepLR_StepSize_25_StepDecay_0.5', 'AdaGrad',
                       'AdaM_tuned', 'RMSProp', 'AdaBound']
@@ -49,7 +49,7 @@ for iteration_dataset in range(len(datasets)):
                 print(file_call)
                 df = pd.read_excel(file_call)
                 df = df.T
-                if "AdaLRT" in evaluating_folders[iteration_folder]:
+                if "AdaS" in evaluating_folders[iteration_folder]:
                     acc_data_vec = np.asarray(df.iloc[12::12, 1])
                 else:
                     acc_data_vec = np.asarray(df.iloc[9::9, 1])
@@ -88,7 +88,7 @@ for iteration_dataset in range(len(datasets)):
                 file_call = file_path + '\\' + file_dir[iteration_file]
                 df = pd.read_excel(file_call)
                 df = df.T
-                if "AdaLRT" in evaluating_folders[iteration_folder]:
+                if "AdaS" in evaluating_folders[iteration_folder]:
                     error_data_vec = np.asarray(df.iloc[1::12, 1])
                 else:
                     error_data_vec = np.asarray(df.iloc[1::9, 1])

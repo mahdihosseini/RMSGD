@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 lr_method = 'Slope'
-# estimated_ranks_VGG16_SGD_AdaLRT_Trial_1.xlsx'
+# estimated_ranks_VGG16_SGD_AdaS_Trial_1.xlsx'
 excel_name = '.xlsx'
 df = pd.read_excel(excel_name)
 df = df.T

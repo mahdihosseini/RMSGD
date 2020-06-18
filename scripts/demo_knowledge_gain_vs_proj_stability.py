@@ -19,15 +19,15 @@ clmp_style = ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds', 'YlOrBr'
 evaluation_directory = '..'
 
 # evaluating_folders = ['SGD_OneCycleLR_epoch_50', 'SGD_StepLR_StepSize_25_StepDecay_0.5', 'AdaM_tuned', 'RMSProp', 'AdaGrad', 'AdaBound',
-#                       'SGD_AdaLRT_alpha_0.800', 'SGD_AdaLRT_alpha_0.825', 'SGD_AdaLRT_alpha_0.850', 'SGD_AdaLRT_alpha_0.875',
-#                       'SGD_AdaLRT_alpha_0.900', 'SGD_AdaLRT_alpha_0.925', 'SGD_AdaLRT_alpha_0.950', 'SGD_AdaLRT_alpha_0.975']
+#                       'SGD_AdaS_alpha_0.800', 'SGD_AdaS_alpha_0.825', 'SGD_AdaS_alpha_0.850', 'SGD_AdaS_alpha_0.875',
+#                       'SGD_AdaS_alpha_0.900', 'SGD_AdaS_alpha_0.925', 'SGD_AdaS_alpha_0.950', 'SGD_AdaS_alpha_0.975']
 # export_string = ['SGD_OneCycleLR', 'SGD_StepLR', 'AdaM', 'RMSProp', 'AdaGrad', 'AdaBound',
 #                  'AdaS_beta_0.800', 'AdaS_beta_0.825', 'AdaS_beta_0.850', 'AdaS_beta_0.875',
 #                  'AdaS_beta_0.900', 'AdaS_beta_0.925', 'AdaS_beta_0.950', 'AdaS_beta_0.975']
 evaluating_folders = ['SGD_OneCycleLR_epoch_50', 'SGD_StepLR_StepSize_25_StepDecay_0.5',
                       'AdaM_tuned', 'AdaBound',
-                      'SGD_AdaLRT_alpha_0.800',
-                      'SGD_AdaLRT_alpha_0.900']
+                      'SGD_AdaS_alpha_0.800',
+                      'SGD_AdaS_alpha_0.900']
 export_string = ['SGD -  OneCycleLR', 'SGD - StepLR', 'AdaM',
                  'AdaBound',
                  'AdaS - beta=0.800',
@@ -77,7 +77,7 @@ for iteration_dataset in range(len(datasets)):
                 file_call = file_path + '/' + file_dir[iteration_file]
                 df = pd.read_excel(file_call)
                 df = df.T
-                if "AdaLRT" in evaluating_folders[iteration_folder]:
+                if "AdaS" in evaluating_folders[iteration_folder]:
                     input_gain_vec = np.asarray(df.iloc[5::12, :])
                     output_gain_vec = np.asarray(df.iloc[6::12, :])
                     knowledge_gain_vec = (input_gain_vec + output_gain_vec) / 2
