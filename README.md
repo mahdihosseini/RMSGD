@@ -1,5 +1,6 @@
 # Adas: Adaptive Scheduling of Stochastic Gradients #
 [Paper](https://arxiv.org/abs/2006.06587)
+
 ## Status ##
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![maintenance](https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
