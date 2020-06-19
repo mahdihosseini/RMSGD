@@ -59,7 +59,7 @@ def get_optimizer_scheduler(net_parameters: Any,
         print(f"Adas: Warning: Unknown optimizer {optim_method}")
     if lr_scheduler == 'StepLR':
         scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, step_size=70, gamma=0.1)
+            optimizer, step_size=25, gamma=0.5)
     elif lr_scheduler == 'CosineAnnealingWarmRestarts':
         first_restart_epochs = 25
         increasing_factor = 1
