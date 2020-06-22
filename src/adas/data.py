@@ -59,7 +59,7 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             root=str(root), train=False,
             download=True, transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
-            testset, batch_size=100, shuffle=False,
+            testset, batch_size=mini_batch_size, shuffle=False,
             num_workers=4, pin_memory=True)
     elif dataset == 'CIFAR10':
         transform_train = transforms.Compose([
@@ -86,7 +86,7 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             root=str(root), train=False,
             download=True, transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
-            testset, batch_size=100, shuffle=False,
+            testset, batch_size=mini_batch_size, shuffle=False,
             num_workers=4, pin_memory=True)
     elif dataset == 'ImageNet':
         transform_train = transforms.Compose([
@@ -114,7 +114,7 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             root=str(root), train=False, download=True,
             transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
-            testset, batch_size=32, shuffle=False,
+            testset, batch_size=mini_batch_size, shuffle=False,
             num_workers=4, pin_memory=True)
     elif dataset == 'COCO':
         ...
