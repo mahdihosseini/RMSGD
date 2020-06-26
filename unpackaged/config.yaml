@@ -9,6 +9,7 @@ lr_scheduler: 'AdaS' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRest
 n_trials: 5
 beta: 0.8
 init_lr: 0.005
+num_workers: 4 # number of workers for the pytorch dataloader.
 
 
 ###### Suggested Default ######

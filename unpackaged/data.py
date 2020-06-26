@@ -29,7 +29,7 @@ import torchvision
 import torch
 
 
-def get_data(root: Path, dataset: str, mini_batch_size: int):
+def get_data(root: Path, dataset: str, mini_batch_size: int, num_workers: int):
     train_loader = None
     test_loader = None
     if dataset == 'CIFAR100':
@@ -53,14 +53,14 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             transform=transform_train)
         train_loader = torch.utils.data.DataLoader(
             trainset, batch_size=mini_batch_size, shuffle=True,
-            num_workers=4, pin_memory=True)
+            num_workers=num_workers, pin_memory=True)
 
         testset = torchvision.datasets.CIFAR100(
             root=str(root), train=False,
             download=True, transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
             testset, batch_size=mini_batch_size, shuffle=False,
-            num_workers=4, pin_memory=True)
+            num_workers=num_workers, pin_memory=True)
     elif dataset == 'CIFAR10':
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -80,14 +80,14 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             transform=transform_train)
         train_loader = torch.utils.data.DataLoader(
             trainset, batch_size=mini_batch_size, shuffle=True,
-            num_workers=4, pin_memory=True)
+            num_workers=num_workers, pin_memory=True)
 
         testset = torchvision.datasets.CIFAR10(
             root=str(root), train=False,
             download=True, transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
             testset, batch_size=mini_batch_size, shuffle=False,
-            num_workers=4, pin_memory=True)
+            num_workers=num_workers, pin_memory=True)
     elif dataset == 'ImageNet':
         transform_train = transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -107,7 +107,7 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             root=str(root), train=True, download=True,
             transform=transform_train)
         train_loader = torch.utils.data.DataLoader(
-            trainset, batch_size=mini_batch_size, shuffle=True, num_workers=4,
+            trainset, batch_size=mini_batch_size, shuffle=True, num_workers=num_workers,
             pin_memory=True)
 
         testset = torchvision.datasets.ImageNet(
@@ -115,7 +115,7 @@ def get_data(root: Path, dataset: str, mini_batch_size: int):
             transform=transform_test)
         test_loader = torch.utils.data.DataLoader(
             testset, batch_size=mini_batch_size, shuffle=False,
-            num_workers=4, pin_memory=True)
+            num_workers=num_workers, pin_memory=True)
     elif dataset == 'COCO':
         ...
     return train_loader, test_loader

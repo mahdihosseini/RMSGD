@@ -179,7 +179,8 @@ def main(args: APNamespace):
         train_loader, test_loader = get_data(
             root=data_path,
             dataset=config['dataset'],
-            mini_batch_size=config['mini_batch_size'])
+            mini_batch_size=config['mini_batch_size'],
+            num_workers=int(config['num_workers']))
         global performance_statistics, net, metrics, adas
         performance_statistics = {}
 

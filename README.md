@@ -31,6 +31,7 @@
     + [Number of Training Trials](#number-of-training-trials)
     + [Beta](#beta)
     + [Initial Learning Rate](#initial-learning-rate)
+    + [Number of Workers](#number-of-workers)
     + [Max Epochs](#max-epochs)
     + [Early Stopping Threshold](#early-stopping-threshold)
     + [Early Stopping Patience](#early-stopping-patience)
@@ -348,6 +349,13 @@ AdaS gain factor. Tunes the AdaS behaviour. Smaller means faster convergence, bu
 **yaml identifier: init_lr**
 
 Initial learning rate for the optimizer method
+
+##### Number of Workers #####
+
+---
+**yaml identifier: num_workers**
+
+Number of workers for the pytorch dataloaders. It is a common rule to use `num_works = 4 * num_GPU`, however this rule glosses over CPU limitations. We have foundt that for Windows machines, that `num_workers` should be reduced to `1` or `2`. This may also apply for machines whith 4-core or 2-core CPUs. We leave it to the user to configure this parameter for their specific machine. It appears as though this issue is less noticed on Linux or Mac machines.
 
 ##### Max Epochs #####
 
