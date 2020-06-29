@@ -201,11 +201,20 @@ There are two version of the AdaS code contained in this repository.
 ---
 
 ##### Repository Cloning #####
-After cloning the repository, simply run
+After cloning the repository, `cd` into the directory and simply run
 ```console
 python setup.py build
 python setup.py install
 ```
+or
+```console
+pip install .
+```
+or
+```console
+pip install -e .
+```
+The above command is recommended if you intend on making changes to the repository.
 
 #### Unpackaged Python ####
 
