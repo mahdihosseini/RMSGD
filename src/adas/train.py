@@ -131,17 +131,17 @@ def main(args: APNamespace):
 
     if not config_path.exists():
         # logging.critical(f"AdaS: Config path {config_path} does not exist")
-        print(f"AdaS: Config path {config_path} does not exist")
+        print(f"Config path {config_path} does not exist")
         raise ValueError
     if not data_path.exists():
-        print(f"AdaS: Data dir {data_path} does not exist, building")
+        print(f"Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"AdaS: Output dir {output_path} does not exist, building")
+        print(f"Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         if args.resume:
-            print(f"AdaS: Cannot resume from checkpoint without specifying " +
+            print(f"Cannot resume from checkpoint without specifying " +
                   "checkpoint dir")
             raise ValueError
         checkpoint_path.mkdir(exist_ok=True, parents=True)
@@ -163,12 +163,12 @@ def main(args: APNamespace):
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(f"AdaS: Pytorch device is set to {device}")
+    print(f"Pytorch device is set to {device}")
     global best_acc
     best_acc = 0  # best test accuracy
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
     if np.less(float(config['early_stop_threshold']), 0):
-        print("AdaS: Notice: early stop will not be used as it was set to " +
+        print("Notice: early stop will not be used as it was set to " +
               f"{config['early_stop_threshold']}, training till completion.")
 
     for trial in range(config['n_trials']):
@@ -247,7 +247,7 @@ def main(args: APNamespace):
             test_loss, test_accuracy = test_main(test_loader, epoch, device)
             total_time = time.time()
             print(
-                f"AdaS: Trial {trial + 1}/{config['n_trials']} | " +
+                f"Trial {trial + 1}/{config['n_trials']} | " +
                 f"Epoch {epoch + 1}/{epochs[-1] + 1} Ended | " +
                 "Total Time: {:.3f}s | ".format(total_time - start_time) +
                 "Epoch Time: {:.3f}s | ".format(end_time - start_time) +
@@ -272,7 +272,7 @@ def main(args: APNamespace):
 
             df.to_excel(str(output_path / xlsx_name))
             if early_stop(train_loss):
-                print("AdaS: Early stop activated.")
+                print("Early stop activated.")
                 break
 
 
