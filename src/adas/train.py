@@ -379,8 +379,11 @@ def epoch_iteration(train_loader, epoch: int,
         lrmetrics = adas.step(epoch, metrics)
         performance_statistics['rank_velocity_epoch_' +
                                str(epoch)] = lrmetrics.rank_velocity
-        performance_statistics['learning_rate_' +
+        performance_statistics['learning_rate_epoch_' +
                                str(epoch)] = lrmetrics.r_conv
+    else:
+        performance_statistics[f'learning_rate_epoch_{epoch}'] = \
+            optimizer.param_groups[0]['lr']
     return train_loss / (batch_idx + 1), 100. * correct / total
 
 

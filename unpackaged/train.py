@@ -164,6 +164,7 @@ def main(args: APNamespace):
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     print(f"Pytorch device is set to {device}")
     global best_acc
     best_acc = 0  # best test accuracy
@@ -382,6 +383,9 @@ def epoch_iteration(train_loader, epoch: int,
                                str(epoch)] = lrmetrics.rank_velocity
         performance_statistics['learning_rate_' +
                                str(epoch)] = lrmetrics.r_conv
+    else:
+        performance_statistics[f'learning_rate_epoch_{epoch}'] = \
+            optimizer.param_groups[0]['lr']
     return train_loss / (batch_idx + 1), 100. * correct / total
 
 
