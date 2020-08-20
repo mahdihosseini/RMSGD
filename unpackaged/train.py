@@ -164,7 +164,6 @@ def main(args: APNamespace):
     for k, v in config.items():
         print(f"    {k:<20} {v:<20}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
     print(f"Pytorch device is set to {device}")
     global best_acc
     best_acc = 0  # best test accuracy
