@@ -27,7 +27,7 @@ import sys
 import torch
 mod_name = vars(sys.modules[__name__])['__package__']
 
-if 'autolr.' in mod_name:
+if 'adas.' in mod_name:
     from .lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
         OneCycleLR
     from .novograd import NovoGrad

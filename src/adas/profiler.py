@@ -38,12 +38,12 @@ class Profiler:
                  device, optimizer, scheduler) -> Tuple[float, float]:
         if self.stream is None:
             self.stream = Profiler.filename.open('w+')
-            print(f"AutoLR: Profiler: Writing csv to {Profiler.filename}")
+            print(f"AdaS: Profiler: Writing csv to {Profiler.filename}")
         else:
             if self.trial != trial:
                 self.stream.close()
                 self.stream = Profiler.filename.open('w+')
-                print(f"AutoLR: Profiler: Writing csv to {Profiler.filename}")
+                print(f"AdaS: Profiler: Writing csv to {Profiler.filename}")
         self.trial = trial
         self.gpu.update()
         self.pr.enable()

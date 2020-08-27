@@ -46,7 +46,6 @@ if mod_name is not None:
     from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from .optim import get_optimizer_scheduler
-    from .lr_range_test import auto_lr
     from .early_stop import EarlyStop
     from .models import get_network
     from .utils import parse_config
@@ -61,7 +60,6 @@ else:
     from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from optim import get_optimizer_scheduler
-    from lr_range_test import auto_lr
     from early_stop import EarlyStop
     from models import get_network
     from utils import parse_config
@@ -76,7 +74,7 @@ else:
 
 def args(sub_parser: _SubParsersAction):
     # print("\n---------------------------------")
-    # print("AutoLR Train Args")
+    # print("AdaS Train Args")
     # print("---------------------------------\n")
     # sub_parser.add_argument(
     #     '-vv', '--very-verbose', action='store_true',
@@ -94,16 +92,16 @@ def args(sub_parser: _SubParsersAction):
         help="Set configuration file path: Default = 'config.yaml'")
     sub_parser.add_argument(
         '--data', dest='data',
-        default='.autolr-data', type=str,
-        help="Set data directory path: Default = '.autolr-data'")
+        default='.adas-data', type=str,
+        help="Set data directory path: Default = '.adas-data'")
     sub_parser.add_argument(
         '--output', dest='output',
-        default='.autolr-output', type=str,
-        help="Set output directory path: Default = '.autolr-output'")
+        default='.adas-output', type=str,
+        help="Set output directory path: Default = '.adas-output'")
     sub_parser.add_argument(
         '--checkpoint', dest='checkpoint',
-        default='.autolr-checkpoint', type=str,
-        help="Set checkpoint directory path: Default = '.autolr-checkpoint'")
+        default='.adas-checkpoint', type=str,
+        help="Set checkpoint directory path: Default = '.adas-checkpoint'")
     sub_parser.add_argument(
         '--resume', dest='resume',
         default=None, type=str,
@@ -202,7 +200,7 @@ class TrainingAgent:
         self.checkpoint_path = checkpoint_path
 
         self.load_config(config_path, data_path)
-        print("AutoLR: Experiment Configuration")
+        print("AdaS: Experiment Configuration")
         print("-"*45)
         for k, v in self.config.items():
             if isinstance(v, list) or isinstance(v, dict):
@@ -232,12 +230,12 @@ class TrainingAgent:
         self.criterion = torch.nn.CrossEntropyLoss().cuda(self.gpu) if \
             config['loss'] == 'cross_entropy' else None
         if np.less(float(config['early_stop_threshold']), 0):
-            print("AutoLR: Notice: early stop will not be used as it was " +
+            print("AdaS: Notice: early stop will not be used as it was " +
                   f"set to {config['early_stop_threshold']}, " +
                   "training till completion")
         elif config['optimizer'] != 'SGD' and \
                 config['lr_scheduler'] != 'AdaS':
-            print("AutoLR: Notice: early stop will not be used as it is not " +
+            print("AdaS: Notice: early stop will not be used as it is not " +
                   "SGD with AdaS, training till completion")
             config['early_stop_threshold'] = -1.
         self.early_stop = EarlyStop(
@@ -306,8 +304,6 @@ class TrainingAgent:
         else:
             list_lr = self.config['init_lr']
         for learning_rate in list_lr:
-            if learning_rate == 'auto':
-                learning_rate = auto_lr(self)
             lr_output_path = self.output_path / f'lr-{learning_rate}'
             lr_output_path.mkdir(exist_ok=True, parents=True)
             for trial in range(self.start_trial,
@@ -384,7 +380,7 @@ class TrainingAgent:
 
             df.to_csv(self.output_filename)
             if self.early_stop(train_loss):
-                print("AutoLR: Early stop activated.")
+                print("AdaS: Early stop activated.")
                 break
             if not self.mpd or \
                     (self.mpd and self.rank % self.ngpus_per_node == 0):
@@ -597,12 +593,12 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
     checkpoint_path = root_path / Path(args.checkpoint).expanduser()
 
     if not config_path.exists():
-        raise ValueError(f"AutoLR: Config path {config_path} does not exist")
+        raise ValueError(f"AdaS: Config path {config_path} does not exist")
     if not data_path.exists():
-        print(f"AutoLR: Data dir {data_path} does not exist, building")
+        print(f"AdaS: Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"AutoLR: Output dir {output_path} does not exist, building")
+        print(f"AdaS: Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         checkpoint_path.mkdir(exist_ok=True, parents=True)
@@ -614,7 +610,7 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
 
 
 def main(args: APNamespace):
-    print("AutoLR: Argument Parser Options")
+    print("AdaS: Argument Parser Options")
     print("-"*45)
     for arg in vars(args):
         attr = getattr(args, arg)
@@ -659,7 +655,7 @@ def main_worker(gpu: int, ngpus_per_node: int, args: APNamespace):
         mpd=args.mpd,
         dist_url=args.dist_url,
         dist_backend=args.dist_backend)
-    print(f"AutoLR: Pytorch device is set to {training_agent.device}")
+    print(f"AdaS: Pytorch device is set to {training_agent.device}")
     training_agent.train()
 
 

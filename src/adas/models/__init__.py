@@ -24,7 +24,7 @@ SOFTWARE.
 import sys
 mod_name = vars(sys.modules[__name__])['__package__']
 
-if 'autolr.' in mod_name:
+if 'adas.' in mod_name:
     from .alexnet import alexnet as AlexNet
     from .densenet import densenet201 as DenseNet201, \
         densenet169 as DenseNet169, densenet161 as DenseNet161,\
