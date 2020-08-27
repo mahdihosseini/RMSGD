@@ -88,16 +88,8 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 **Table 1: Image classification performance (test accuracy) with fixed budget epoch of ResNet34 on CIFAR10 and CIFAR100 using various optimizers**
 ![table 1](figures/table_1.png)
 
-### Knowledge Gain Vs. Mapping Condition - CNN Quality Metrics ###
-**Evolution of knowledge gain vs. mapping condition across different training epochs using ResNet34 on CIFAR10. Different colours represnets different conv blocks, and transparency is correlated to training epoch--lower transparency means higher epoch**
-
-![OneCycle gif](gifs/one_cycle.gif)
-![StepLR gif](gifs/step_lr.gif)
-![Adam gif](gifs/adam.gif)
-
-![AdaBound](gifs/adabound.gif)
-![AdaS 0.800 gif](gifs/adas_b_08.gif)
-![AdaS 0.975 gif](gifs/adas_b_09.gif)
+### QC Metrics ###
+Please refer to [QC on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
 
 ### Requirements ###
 #### Software ####
