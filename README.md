@@ -12,7 +12,7 @@
   * [Introduction](#introduction)
     + [License](#license)
     + [Citing AdaS](#citing-adas)
-    + [Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html)](#empirical-classification-results-on--cifar10--https---wwwcstorontoedu--kriz-cifarhtml--and--cifar100--https---wwwcstorontoedu--kriz-cifarhtml-)
+    + [Empirical Classification Results on CIFAR10 and CIFAR100](#empirical-classification-results-on-cifar10-and-cifar100)
     + [QC Metrics](#qc-metrics)
   * [Requirements](#requirements)
     + [Software/Hardware](#software-hardware)
