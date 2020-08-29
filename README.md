@@ -91,54 +91,13 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 Please refer to [QC on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
 
 ## Requirements ##
-### Software ###
-We use `Python 3.7`. Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Installation-Requirements) for more information.
+### Software/Hardware ###
+We use `Python 3.7`.
 
-Please refer to [requirements.txt](requirements.txt), the following Python packages are required:
-```text
--e .
-future==0.18.2
-joblib==0.16.0
-memory-profiler==0.57.0
-numpy==1.19.1
-pandas==1.1.1
-Pillow==7.2.0
-psutil==5.7.2
-python-dateutil==2.8.1
-pytz==2020.1
-PyYAML==5.3.1
-scikit-learn==0.23.2
-scipy==1.5.2
-six==1.15.0
-threadpoolctl==2.1.0
-torch==1.6.0
-torchvision==0.7.0
-tqdm==4.48.2
-```
+Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Installation-Requirements) for complete guideline.
 
-**NOTE** that in order to satisfy `torch==1.5.0` the following Nvidia requirements need to be met:
-- CUDA Version: `CUDA 10.2`
-- CUDA Driver Version: `r440`
-- CUDNN Version: `7.6.4-7.6.5`
-For more information, refer to the [cudnn-support-matrix](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html).
-
-Refer to the [PyTorch installation guide](https://pytorch.org/) for information how to install PyTorch. We do not guarantee proper function of this code using different versions of PyTorch or CUDA.
-
-#### Hardware ####
-- GPU
-  - At least 4 GB of GPU memory is required
-- Memory
-  - At least 8 GB of internal memory is required
-Naturally, the memory requirements is scaled relative to current dataset being used and mini-batch sizes, we state these number using the CIFAR10 and CIFAR100 dataset.
-
-#### Some Experimental Results ####
-Further, we state the following results for certain training configurations to give you an idea of what to expect:
-
-**hardware specs**:
-- GPU: RTX2080
-- 32GB DDR4 Ram
-
-**config.yaml**:
+### Parameter Setup ###
+To setup the experiment paremters, please edit **config.yaml**:
 ```yaml
 ###### Application Specific ######
 dataset: 'CIFAR10'
