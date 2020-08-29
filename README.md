@@ -124,14 +124,15 @@ mini_batch_size: 128
 p: 1 # options: 1, 2.
 loss: 'cross_entropy'
 ```
+
+### Computational Overhead ###
+AdaS introduces no overhead (very minimal) over adaptive optimizers e.g. all mSGD+StepLR, mSGD+AdaS, AdaM consume 40~43 sec/epoch to train ResNet34/CIFAR10 using the same PC/GPU platform
+
 |Optimizer|Learning Rate Scheduler|Epoch Time (avg.)|RAM (Memory) Consumed|GPU Memory Consumed|
 |---|---|---|---|---|
-|SGD|None|40-43 seconds |~2.75 GB|~3.0 GB|
-|SGD|AdaS|40-43 seconds |~2.75 GB|~3.0 GB|
+|mSGD|StepLR|40-43 seconds |~2.75 GB|~3.0 GB|
+|mSGD|AdaS|40-43 seconds |~2.75 GB|~3.0 GB|
 |ADAM|None|40-43 seconds|~2.75 GB|~3.0 GB|
-
-
-We identify that each experiment is identical is computational performance.
 
 ### Installation ###
 There are two versions of the AdaS code contained in this repository.
@@ -140,39 +141,8 @@ There are two versions of the AdaS code contained in this repository.
 
 All source code can be found in [src/adas](src/adas)
 
-#### Python Package ####
+For more information, also refer to [Installation on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Package-Installation)
 
----
-
-##### Repository Cloning #####
-After cloning the repository, `cd` into the directory and simply run
-```console
-python setup.py build
-python setup.py install
-```
-or
-```console
-pip install .
-```
-or
-```console
-pip install -e .
-```
-The above command is recommended if you intend on making changes to the repository.
-
-#### Unpackaged Python ####
-
----
-Ensure first that you have the requirements installed per [requirements.txt](requirements.txt)
-
-You can run the code by running
-```console
-python train.py --...
-```
-Where `--...` represents the options for training (see below)
-
-Similarly, the `train.py` file could be run from an IDE. We leave specifying arguments up to the user if run this way. Note a quick and dirty way is to alter the default argument values found in `train.py`.
-here `--...` represents the options for training (see below)
 
 ### Usage ###
 Moving forward, I will refer to console usage of this library. IDE usage is no different. Training options are split two ways:
