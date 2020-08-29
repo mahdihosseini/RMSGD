@@ -23,8 +23,6 @@
     + [Pytest](#pytest)
 
 ## Introduction ##
-[Paper](https://arxiv.org/abs/2006.06587)
-
 **[AdaS](https://arxiv.org/abs/2006.06587)** is an optimizer with adaptive scheduled learning rate methodology for training Convolutional Neural Networks (CNN).
 
 - AdaS exhibits the rapid minimization characteristics that adaptive optimizers like [AdaM](https://arxiv.org/abs/1412.6980) are favoured for
