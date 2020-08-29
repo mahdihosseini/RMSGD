@@ -1,5 +1,4 @@
-# Adas: Adaptive Scheduling of Stochastic Gradients #
-[Paper](https://arxiv.org/abs/2006.06587)
+# [Adas: Adaptive Scheduling of Stochastic Gradients](https://arxiv.org/abs/2006.06587) #
 ## Status ##
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![maintenance](https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
@@ -26,7 +25,7 @@
 ## Introduction ##
 [Paper](https://arxiv.org/abs/2006.06587)
 
-**AdaS** is an optimizer with adaptive scheduled learning rate methodology for training Convolutional Neural Networks (CNN).
+**[AdaS](https://arxiv.org/abs/2006.06587)** is an optimizer with adaptive scheduled learning rate methodology for training Convolutional Neural Networks (CNN).
 
 - AdaS exhibits the rapid minimization characteristics that adaptive optimizers like [AdaM](https://arxiv.org/abs/1412.6980) are favoured for
 - AdaS exhibits *generalization* (low testing loss) characteristics on par with SGD based optimizers, improving on the poor *generalization* characteristics of adaptive optimizers
