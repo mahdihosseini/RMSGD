@@ -80,21 +80,21 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 ```
 ### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
 
-**Figure 1: Training performance using different optimizers across two datasets (CIFAR10 and CIFA100) and two CNNs (VGG16 and ResNet34)**
+**Figure 1: Training performance using different optimizers across two datasets and two CNNs**
 ![figure 1](figures/figure_1.png)
 
 
-**Table 1: Image classification performance (test accuracy) with fixed budget epoch of ResNet34 on CIFAR10 and CIFAR100 using various optimizers**
+**Table 1: Image classification performance (test accuracy) with fixed budget epoch of ResNet34 training**
 ![table 1](figures/table_1.png)
 
 ### QC Metrics ###
 Please refer to [QC on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
 
-### Requirements ###
-#### Software ####
-We use `Python 3.7`
+## Requirements ##
+### Software ###
+We use `Python 3.7`. Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Installation-Requirements) for more information.
 
-Per [requirements.txt](requirements.txt), the following Python packages are required:
+Please refer to [requirements.txt](requirements.txt), the following Python packages are required:
 ```text
 -e .
 future==0.18.2
