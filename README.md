@@ -78,8 +78,7 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
     primaryClass={cs.LG}
 }
 ```
-### Empirical Classification Results on CIFAR10 and CIFAR100 ###
-[CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html)/[CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html)
+### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
 
 **Figure 1: Training performance using different optimizers across two datasets (CIFAR10 and CIFA100) and two CNNs (VGG16 and ResNet34)**
 ![figure 1](figures/figure_1.png)
