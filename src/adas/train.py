@@ -40,13 +40,14 @@ import numpy as np
 import torch
 import yaml
 
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
-if mod_name is not None:
+if 'adas.' in mod_name:
     from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from .optim import get_optimizer_scheduler
     from .early_stop import EarlyStop
+    from .optim.adasls import AdaSLS
     from .models import get_network
     from .utils import parse_config
     from .profiler import Profiler
@@ -61,6 +62,7 @@ else:
         OneCycleLR
     from optim import get_optimizer_scheduler
     from early_stop import EarlyStop
+    from optim.adasls import AdaSLS
     from models import get_network
     from utils import parse_config
     from profiler import Profiler
@@ -234,7 +236,7 @@ class TrainingAgent:
                   f"set to {config['early_stop_threshold']}, " +
                   "training till completion")
         elif config['optimizer'] != 'SGD' and \
-                config['lr_scheduler'] != 'AdaS':
+                config['scheduler'] != 'AdaS':
             print("AdaS: Notice: early stop will not be used as it is not " +
                   "SGD with AdaS, training till completion")
             config['early_stop_threshold'] = -1.
@@ -293,6 +295,7 @@ class TrainingAgent:
             net_parameters=self.network.parameters(),
             listed_params=list(self.network.parameters()),
             train_loader_len=len(self.train_loader),
+            mini_batch_size=self.config['mini_batch_size'],
             max_epochs=self.config['max_epochs'],
             optimizer_kwargs=self.config['optimizer_kwargs'],
             scheduler_kwargs=self.config['scheduler_kwargs'])
@@ -315,7 +318,8 @@ class TrainingAgent:
                         self.checkpoint['state_dict_network'])
                     self.optimizer.load_state_dict(
                         self.checkpoint['state_dict_optimizer'])
-                    if not isinstance(self.scheduler, AdaS):
+                    if not isinstance(self.scheduler, AdaS) \
+                            and self.scheduler is not None:
                         self.scheduler.load_state_dict(
                             self.checkpoint['state_dict_scheduler'])
                     else:
@@ -390,7 +394,8 @@ class TrainingAgent:
                         'state_dict_network': self.network.state_dict(),
                         'state_dict_optimizer': self.optimizer.state_dict(),
                         'state_dict_scheduler': self.scheduler.state_dict()
-                        if not isinstance(self.scheduler, AdaS) else None,
+                        if not isinstance(self.scheduler, AdaS) and
+                        self.scheduler is not None else None,
                         'best_acc1': self.best_acc1,
                         'performance_statistics': self.performance_statistics,
                         'output_filename': Path(self.output_filename).name,
@@ -428,7 +433,8 @@ class TrainingAgent:
             if isinstance(self.scheduler, CosineAnnealingWarmRestarts):
                 self.scheduler.step(epoch + batch_idx / len(self.train_loader))
             self.optimizer.zero_grad()
-            if isinstance(self.optimizer, SLS):
+            if isinstance(self.optimizer, SLS) or \
+                    isinstance(self.optimizer, AdaSLS):
                 def closure():
                     outputs = self.network(inputs)
                     loss = self.criterion(outputs, targets)
@@ -491,7 +497,7 @@ class TrainingAgent:
             # if GLOBALS.CONFIG['optim_method'] == 'SLS' or \
             #         GLOBALS.CONFIG['optim_method'] == 'SPS':
             if isinstance(self.optimizer, SLS) or isinstance(
-                    self.optimizer, SPS):
+                    self.optimizer, SPS) or isinstance(self.optimizer, AdaSLS):
                 self.performance_statistics[f'learning_rate_epoch_{epoch}'] = \
                     self.optimizer.state['step_size']
             else:

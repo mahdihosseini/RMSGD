@@ -1,25 +1,21 @@
 ###### Application Specific ######
 dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
-network: 'ResNet18CIFAR' # AlexNet, DenseNet201, DenseNet169, DenseNet161, DenseNet121, GoogLeNet
+network: 'ResNet34CIFAR' # AlexNet, DenseNet201, DenseNet169, DenseNet161, DenseNet121, GoogLeNet
 # InceptionV3, MNASNet_0_5, MNASNet_0_75, MNASNet_1, MNASNet_1_3, MobileNetV2, ResNet18
 # ResNet34, ResNet50, ResNet101, ResNet152, ResNext50, ResNext101, WideResNet50, WideResNet101
 # ShuffleNetV2_0_5, ShuffleNetV2_1, ShuffleNetV2_1_5, ShuffleNetV2_2, SqueezeNet_1,
 # SqueezeNet_1_1, VGG11, VGG11_BN, VGG13, VGG13_BN, VGG16, VGG16_BN, VGG19, VGG19_BN,
 # EfficientNetB4
 # ResNet34CIFAR, ResNet18CIFAR, ResNeXtCIFAR, EfficientNetB0CIFAR, VGG16CIFAR, DenseNet121CIFAR
-optimizer: 'SGD' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
-scheduler: 'AdaS' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
+optimizer: 'AdaSLS' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
+scheduler: 'None' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
 
 
 ###### Suggested Tune ######
-init_lr: 'auto'
+init_lr: 100
 early_stop_threshold: 0.001 # set to -1 if you wish not to use early stop, or equally, set to a high value. Set to -1 if not using AdaS
-optimizer_kwargs:
-  momentum: 0.9
-  weight_decay: 5e-4
-scheduler_kwargs:
-  p: 1 # options: 1, 2.
-  beta: 0.8
+optimizer_kwargs: {}
+scheduler_kwargs: {}
 
 
 ###### Suggested Default ######

@@ -29,9 +29,9 @@ import torchvision.transforms as transforms
 import torchvision
 import torch
 
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
-if mod_name:
+if 'adas.' in mod_name:
     from .datasets import ImageNet
 else:
     from datasets import ImageNet

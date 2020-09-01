@@ -29,6 +29,12 @@ Some helper functions for PyTorch, including:
 from typing import Dict, Union, List
 
 import pstats
+import sys
+
+
+def get_is_module():
+    mod_name = vars(sys.modules[__name__])
+    return True if 'adas.' in mod_name['__name__'] else False
 
 
 def safe_float_cast(str_number: str) -> float:

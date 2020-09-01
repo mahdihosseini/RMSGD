@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import sys
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
 if 'adas.' in mod_name:
     from .alexnet import alexnet as AlexNet

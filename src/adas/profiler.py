@@ -9,9 +9,9 @@ import io
 
 from memory_profiler import memory_usage
 
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
-if mod_name:
+if 'adas.' in mod_name:
     from .components import Statistics
     from .utils import pstats_to_dict
     from .gpu import GPU

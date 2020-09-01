@@ -25,7 +25,7 @@ from typing import Any, List
 import sys
 
 import torch
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
 if 'adas.' in mod_name:
     from .lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
@@ -40,6 +40,7 @@ if 'adas.' in mod_name:
     from .laprop import LaProp
     from .adamod import AdaMod
     from .adamax import Adamax
+    from .adasls import AdaSLS
     from .nadam import NAdam
     from .padam import PAdam
     from .radam import RAdam
@@ -63,6 +64,7 @@ else:
     from optim.laprop import LaProp
     from optim.adamod import AdaMod
     from optim.adamax import Adamax
+    from optim.adasls import AdaSLS
     from optim.nadam import NAdam
     from optim.padam import PAdam
     from optim.radam import RAdam
@@ -82,6 +84,7 @@ def get_optimizer_scheduler(
         net_parameters: Any,
         listed_params: List[Any],
         train_loader_len: int,
+        mini_batch_size: int,
         max_epochs: int,
         optimizer_kwargs=dict(),
         scheduler_kwargs=dict()) -> torch.nn.Module:
@@ -169,6 +172,11 @@ def get_optimizer_scheduler(
     elif optim_method == 'SLS':
         optimizer = SLS(net_parameters, init_step_size=init_lr,
                         **optim_processed_kwargs)
+    elif optim_method == 'AdaSLS':
+        optimizer = AdaSLS(
+            net_parameters,
+            n_batches_per_epoch=train_loader_len/float(mini_batch_size),
+            init_step_size=init_lr, **optim_processed_kwargs)
     elif optim_method == 'LaProp':
         optimizer = LaProp(net_parameters, lr=init_lr,
                            **optim_processed_kwargs)

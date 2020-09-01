@@ -40,9 +40,9 @@ import platform
 import sys
 import os
 
-mod_name = vars(sys.modules[__name__])['__package__']
+mod_name = vars(sys.modules[__name__])['__name__']
 
-if mod_name:
+if 'adas.' in mod_name:
     from .utils import safe_float_cast
 else:
     from utils import safe_float_cast
