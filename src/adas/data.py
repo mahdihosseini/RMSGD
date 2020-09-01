@@ -32,9 +32,9 @@ import torch
 mod_name = vars(sys.modules[__name__])['__name__']
 
 if 'adas.' in mod_name:
-    from .datasets import ImageNet
+    from .datasets import ImageNet, TinyImageNet
 else:
-    from datasets import ImageNet
+    from datasets import ImageNet, TinyImageNet
 # from .folder2lmdb import ImageFolderLMDB
 
 
@@ -148,6 +148,52 @@ def get_data(
         #     transform=transform_test)
         testset = ImageNet(
             root=str(root), split='val', download=None,
+            transform=transform_test)
+        # testset = ImageFolderLMDB(str(root / 'val.lmdb'),
+        #                           transform_test)
+        test_loader = torch.utils.data.DataLoader(
+            testset, batch_size=mini_batch_size, shuffle=False,
+            num_workers=num_workers, pin_memory=True)
+    elif name == 'TinyImageNet':
+        num_classes = 200
+        transform_train = transforms.Compose([
+            transforms.RandomResizedCrop(64),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+                                 0.229, 0.224, 0.225]),
+        ])
+
+        transform_test = transforms.Compose([
+            transforms.Resize(64),
+            transforms.CenterCrop(64),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+                                 0.229, 0.224, 0.225]),
+        ])
+
+        trainset = TinyImageNet(
+            root=str(root), split='train', download=False,
+            transform=transform_train)
+        # trainset = torchvision.datasets.ImageFolder(
+        #     root=str(root / 'train'),
+        #     transform=transform_train)
+        train_sampler = \
+            torch.utils.data.distributed.DistributedSampler(
+                trainset) if dist else None
+        # trainset = ImageFolderLMDB(str(root / 'train.lmdb'),
+        #                            transform_train)
+        train_loader = torch.utils.data.DataLoader(
+            trainset, batch_size=mini_batch_size,
+            shuffle=(train_sampler is None),
+            num_workers=num_workers,
+            pin_memory=True, sampler=train_sampler)
+
+        # testset = torchvision.datasets.ImageFolder(
+        #     root=str(root / 'val'),
+        #     transform=transform_test)
+        testset = TinyImageNet(
+            root=str(root), split='val', download=False,
             transform=transform_test)
         # testset = ImageFolderLMDB(str(root / 'val.lmdb'),
         #                           transform_test)
