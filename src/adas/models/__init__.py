@@ -40,7 +40,7 @@ if 'adas.' in mod_name:
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
         wide_resnet50_2 as WideResNet50, wide_resnet101_2 as WideResNet101
     from .resnet_cifar import ResNet34 as ResNet34CIFAR,\
-        ResNet18 as ResNet18CIFAR
+        ResNet18 as ResNet18CIFAR, ResNet101 as ResNet101CIFAR, ResNet50 as ResNet50CIFAR
     from .resnext_cifar import ResNeXt29_1x64d as ResNeXtCIFAR
     from .shufflenetv2 import shufflenet_v2_x0_5 as ShuffleNetV2_0_5, \
         shufflenet_v2_x1_0 as ShuffleNetV2_1, \
@@ -71,7 +71,7 @@ else:
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
         wide_resnet50_2 as WideResNet50, wide_resnet101_2 as WideResNet101
     from models.resnet_cifar import ResNet34 as ResNet34CIFAR,\
-        ResNet18 as ResNet18CIFAR
+        ResNet18 as ResNet18CIFAR, ResNet101 as ResNet101CIFAR, ResNet50 as ResNet50CIFAR
     from models.resnext_cifar import ResNeXt29_1x64d as ResNeXtCIFAR
     from models.shufflenetv2 import shufflenet_v2_x0_5 as ShuffleNetV2_0_5, \
         shufflenet_v2_x1_0 as ShuffleNetV2_1, \
@@ -122,6 +122,10 @@ def get_network(name: str, num_classes: int) -> None:
             num_classes=num_classes) if name == 'ResNet34' else\
         ResNet34CIFAR(
             num_classes=num_classes) if name == 'ResNet34CIFAR' else\
+        ResNet50CIFAR(
+            num_classes=num_classes) if name == 'ResNet50CIFAR' else\
+        ResNet101CIFAR(
+            num_classes=num_classes) if name == 'ResNet101CIFAR' else\
         ResNet18CIFAR(
             num_classes=num_classes) if name == 'ResNet18CIFAR' else\
         ResNet50(

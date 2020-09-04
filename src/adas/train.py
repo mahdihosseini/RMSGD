@@ -94,7 +94,7 @@ def args(sub_parser: _SubParsersAction):
         help="Set configuration file path: Default = 'config.yaml'")
     sub_parser.add_argument(
         '--data', dest='data',
-        default='.adas-data', type=str,
+        default='C:\\Users\Mahdi\Documents\\tiny-imagenet\\tiny-imagenet-200', type=str,
         help="Set data directory path: Default = '.adas-data'")
     sub_parser.add_argument(
         '--output', dest='output',
@@ -333,17 +333,17 @@ class TrainingAgent:
                     epochs = range(0, self.config['max_epochs'])
                     self.output_filename = "results_" +\
                         f"date={datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}_" +\
-                        f"trial=AdaS_trial={trial}_" +\
-                        f"network={self.config['network']}_" +\
-                        f"dataset={self.config['dataset']}" +\
-                        f"optimizer={self.config['optimizer']}" +\
+                        f"trial={trial}_" +\
+                        f"{self.config['network']}_" +\
+                        f"{self.config['dataset']}_" +\
+                        f"{self.config['optimizer']}" +\
                         '_'.join([f"{k}={v}" for k, v in
                                   self.config['optimizer_kwargs'].items()]) +\
-                        f"_scheduler={self.config['scheduler']}" +\
+                        f"_{self.config['scheduler']}" +\
                         '_'.join([f"{k}={v}" for k, v in
                                   self.config['scheduler_kwargs'].items()]) +\
-                        f"_learning_rate={learning_rate}" +\
-                        ".csv".replace(' ', '-')
+                        f"_LR={learning_rate}" +\
+                        ".xlsx".replace(' ', '-')
                 self.output_filename = str(
                     lr_output_path / self.output_filename)
                 stats_filename = self.output_filename.replace(
@@ -382,7 +382,7 @@ class TrainingAgent:
                     test_acc1 * 100))
             df = pd.DataFrame(data=self.performance_statistics)
 
-            df.to_csv(self.output_filename)
+            df.to_excel(self.output_filename)
             if self.early_stop(train_loss):
                 print("AdaS: Early stop activated.")
                 break
