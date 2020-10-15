@@ -56,7 +56,7 @@ note={under review}
 ### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
 
 **Figure 1: Training performance using different optimizers across two datasets and two CNNs**
-![figure 1](figures/figure_1.png)
+![figure 1](figures/main_results.png)
 
 
 **Table 1: Image classification performance (test accuracy) with fixed budget epoch of ResNet34 training**
