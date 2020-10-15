@@ -55,12 +55,12 @@ note={under review}
 ```
 ### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
 
-**Figure 1: Training performance using different optimizers across two datasets and two CNNs**
+**Figure 1: Training performance using different optimizers across three datasets and two CNNs**
 ![figure 1](figures/main_results.png)
 
 
 **Table 1: Image classification performance (test accuracy) with fixed budget epoch of ResNet34 training**
-![table 1](figures/table_1.png)
+![table 1](figures/tabular_results.png)
 
 ### QC Metrics ###
 Please refer to [QC on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
