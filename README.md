@@ -23,12 +23,12 @@
     + [Pytest](#pytest)
 
 ## Introduction ##
-**[AdaS](https://openreview.net/forum?id=qUzxZj13RWY)** is an optimizer with adaptive scheduled learning rate methodology for training Convolutional Neural Networks (CNN).
+**[AdaS](https://openreview.net/forum?id=qUzxZj13RWY)** is an adaptive optimizer for scheduling learning rate for training Convolutional Neural Networks (CNN).
 
 - AdaS exhibits the rapid minimization characteristics that adaptive optimizers like [AdaM](https://arxiv.org/abs/1412.6980) are favoured for
 - AdaS exhibits *generalization* (low testing loss) characteristics on par with SGD based optimizers, improving on the poor *generalization* characteristics of adaptive optimizers
 - AdaS introduces no computational overhead over adaptive optimizers (see [experimental results](#some-experimental-results))
-- In addition to optimization, AdaS introduces new quality metrics for CNN training ([quality metrics](#knowledge-gain-vs-mapping-condition---cnn-quality-metrics))
+- In addition to optimization, AdaS introduces new probing metrics for CNN layer evaulation ([quality metrics](#knowledge-gain-vs-mapping-condition---cnn-quality-metrics))
 
 This repository contains a [PyTorch](https://pytorch.org/) implementation of the AdaS learning rate scheduler algorithm.
 
