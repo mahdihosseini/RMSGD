@@ -74,12 +74,6 @@ Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wik
 ### Computational Overhead ###
 AdaS introduces no overhead (very minimal) over adaptive optimizers e.g. all mSGD+StepLR, mSGD+AdaS, AdaM consume 40~43 sec/epoch to train ResNet34/CIFAR10 using the same PC/GPU platform
 
-|Optimizer|Learning Rate Scheduler|Epoch Time (avg.)|RAM (Memory) Consumed|GPU Memory Consumed|
-|---|---|---|---|---|
-|mSGD|StepLR|40-43 seconds |~2.75 GB|~3.0 GB|
-|mSGD|AdaS|40-43 seconds |~2.75 GB|~3.0 GB|
-|ADAM|None|40-43 seconds|~2.75 GB|~3.0 GB|
-
 ### Installation ###
 There are two versions of the AdaS code contained in this repository.
 1. a python-package version of the AdaS code, which can be `pip`-installed.
