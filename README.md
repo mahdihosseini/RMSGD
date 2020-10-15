@@ -1,4 +1,4 @@
-# [Adas: Adaptive Scheduling of Stochastic Gradients](https://arxiv.org/abs/2006.06587) #
+# [Adas: Adaptive Scheduling of Stochastic Gradients](https://openreview.net/forum?id=qUzxZj13RWY) #
 ## Status ##
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![maintenance](https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
@@ -43,13 +43,14 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 
 ### Citing AdaS ###
 ```text
-@misc{hosseini2020adas,
-    title={AdaS: Adaptive Scheduling of Stochastic Gradients},
-    author={Mahdi S. Hosseini and Konstantinos N. Plataniotis},
-    year={2020},
-    eprint={2006.06587},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG}
+@inproceedings{
+anonymous2021adas,
+title={AdaS: Adaptive Scheduling of Stochastic Gradients},
+author={Anonymous},
+booktitle={Submitted to International Conference on Learning Representations},
+year={2021},
+url={https://openreview.net/forum?id=qUzxZj13RWY},
+note={under review}
 }
 ```
 ### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
