@@ -53,7 +53,7 @@ url={https://openreview.net/forum?id=qUzxZj13RWY},
 note={under review}
 }
 ```
-### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html) and [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) ###
+### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html), [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) and [Tiny-ImageNet-200](http://cs231n.stanford.edu/tiny-imagenet-200.zip) ###
 
 **Figure 1: Training performance using different optimizers across three datasets and two CNNs**
 ![figure 1](figures/main_results.png)
