@@ -50,7 +50,6 @@ if 'adas.' in mod_name:
     from .optim.adasls import AdaSLS
     from .models import get_network
     from .utils import parse_config
-    from .profiler import Profiler
     from .metrics import Metrics
     from .models.vgg import VGG
     from .optim.sls import SLS
@@ -65,7 +64,6 @@ else:
     from optim.adasls import AdaSLS
     from models import get_network
     from utils import parse_config
-    from profiler import Profiler
     from metrics import Metrics
     from models.vgg import VGG
     from optim.sls import SLS
@@ -94,7 +92,7 @@ def args(sub_parser: _SubParsersAction):
         help="Set configuration file path: Default = 'config.yaml'")
     sub_parser.add_argument(
         '--data', dest='data',
-        default='C:\\Users\Mahdi\Documents\\tiny-imagenet\\tiny-imagenet-200', type=str,
+        default='.adas-data', type=str,
         help="Set data directory path: Default = '.adas-data'")
     sub_parser.add_argument(
         '--output', dest='output',
@@ -346,11 +344,7 @@ class TrainingAgent:
                         ".xlsx".replace(' ', '-')
                 self.output_filename = str(
                     lr_output_path / self.output_filename)
-                stats_filename = self.output_filename.replace(
-                    'results', 'stats')
-                Profiler.filename = lr_output_path / stats_filename
                 self.run_epochs(trial, epochs)
-                Profiler.stream = None
 
     def run_epochs(self, trial: int, epochs: List[int]) -> None:
         for epoch in epochs:
@@ -408,8 +402,6 @@ class TrainingAgent:
                     torch.save(
                         data, str(self.checkpoint_path / 'best.pth.tar'))
         torch.save(data, str(self.checkpoint_path / 'last.pth.tar'))
-
-    # @Profiler
 
     def epoch_iteration(self, trial: int, epoch: int):
         # logging.info(f"Adas: Train: Epoch: {epoch}")

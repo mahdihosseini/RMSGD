@@ -1,5 +1,5 @@
 ###### Application Specific ######
-dataset: 'TinyImageNet' # options: CIFAR100, CIFAR10, ImageNet
+dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
 network: 'ResNet34CIFAR' # AlexNet, DenseNet201, DenseNet169, DenseNet161, DenseNet121, GoogLeNet
 # InceptionV3, MNASNet_0_5, MNASNet_0_75, MNASNet_1, MNASNet_1_3, MobileNetV2, ResNet18
 # ResNet34, ResNet50, ResNet101, ResNet152, ResNext50, ResNext101, WideResNet50, WideResNet101
