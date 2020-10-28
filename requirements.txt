@@ -1,4 +1,5 @@
 -e .
+openpyxl
 future==0.18.2
 joblib==0.16.0
 memory-profiler==0.57.0
