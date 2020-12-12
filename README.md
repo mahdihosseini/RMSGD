@@ -43,14 +43,11 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 
 ### Citing AdaS ###
 ```text
-@inproceedings{
-anonymous2021adas,
-title={AdaS: Adaptive Scheduling of Stochastic Gradients},
-author={Anonymous},
-booktitle={Submitted to International Conference on Learning Representations},
-year={2021},
-url={https://openreview.net/forum?id=qUzxZj13RWY},
-note={under review}
+@article{hosseini2020adas,
+  title={AdaS: Adaptive Scheduling of Stochastic Gradients},
+  author={Hosseini, Mahdi S and Plataniotis, Konstantinos N},
+  journal={arXiv preprint arXiv:2006.06587},
+  year={2020}
 }
 ```
 ### Empirical Classification Results on [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html), [CIFAR100](https://www.cs.toronto.edu/~kriz/cifar.html) and [Tiny-ImageNet-200](http://cs231n.stanford.edu/tiny-imagenet-200.zip) ###
