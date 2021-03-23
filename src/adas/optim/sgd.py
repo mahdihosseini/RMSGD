@@ -131,12 +131,14 @@ class SGD(Optimizer):
         if momentum < 0.0:
             raise ValueError("Invalid momentum value: {}".format(momentum))
         if weight_decay < 0.0:
-            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+            raise ValueError(
+                "Invalid weight_decay value: {}".format(weight_decay))
 
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov)
         if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
+            raise ValueError(
+                "Nesterov momentum requires a momentum and zero dampening")
         super(SGD, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -172,7 +174,8 @@ class SGD(Optimizer):
                 if momentum != 0:
                     param_state = self.state[p]
                     if 'momentum_buffer' not in param_state:
-                        buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
+                        buf = param_state['momentum_buffer'] = torch.clone(
+                            d_p).detach()
                     else:
                         buf = param_state['momentum_buffer']
                         buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
@@ -181,7 +184,7 @@ class SGD(Optimizer):
                     else:
                         d_p = buf
 
-                p.add_(d_p, alpha=-group['lr'])
+                p.data.add_(d_p, alpha=-group['lr'])
 
         return loss
 
@@ -296,7 +299,7 @@ class SGDVec(Optimizer):
                         d_p = buf
 
                 # p.data.add_(-group['lr'], d_p)
-                p.data.add_(-lr_vector[iteration_p], d_p)
+                p.data.add_(d_p, alpha=-lr_vector[iteration_p])
                 iteration_p += 1
 
         return loss

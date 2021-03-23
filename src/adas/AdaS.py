@@ -42,7 +42,9 @@ class AdaS():
     def __init__(self, parameters: List[Any],
                  beta: float = 0.8, zeta: float = 1.,
                  p: int = 1, init_lr: float = 3e-2,
-                 min_lr: float = 1e-20) -> None:
+                 min_lr: float = 1e-20,
+                 step_size: int = None,
+                 gamma: float = 1) -> None:
         '''
         parameters: list of torch.nn.Module.parameters()
         beta: float: AdaS gain factor [0, 1)
@@ -64,6 +66,8 @@ class AdaS():
         self.min_lr = min_lr
         self.beta = beta
         self.zeta = zeta
+        self.step_size = step_size
+        self.gamma = gamma
 
         init_lr_vector = np.repeat(a=init_lr,
                                    repeats=len(metrics.layers_info))
@@ -124,6 +128,12 @@ class AdaS():
                 x=x_regression, y=channel_replica, deg=1)[0]
             velocity_fc_rank = np.polyfit(
                 x=x_regression, y=fc_channel_replica, deg=1)[0][0]
+
+        if self.step_size is not None:
+            if epoch % self.step_size == 0 and epoch > 0:
+                self.R_conv *= self.gamma
+                self.R_fc *= self.gamma
+                self.zeta *= self.gamma
 
         self.R_conv = self.beta * self.R_conv + self.zeta * velocity_conv_rank
         self.R_fc = self.beta * self.R_fc + self.zeta * velocity_fc_rank

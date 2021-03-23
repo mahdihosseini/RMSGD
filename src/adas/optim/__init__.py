@@ -30,6 +30,8 @@ mod_name = vars(sys.modules[__name__])['__name__']
 if 'adas.' in mod_name:
     from .lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
         OneCycleLR
+    from .adamp import AdamPVec, AdamP
+    from .sgdp import SGDPVec, SGDP
     from .novograd import NovoGrad
     from .adabound import AdaBound
     from .adashift import AdaShift
@@ -54,6 +56,8 @@ if 'adas.' in mod_name:
 else:
     from optim.lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
         OneCycleLR
+    from optim.adamp import AdamPVec, AdamP
+    from optim.sgdp import SGDPVec, SGDP
     from optim.novograd import NovoGrad
     from optim.adabound import AdaBound
     from optim.adashift import AdaShift
@@ -141,7 +145,6 @@ def get_optimizer_scheduler(
     elif optim_method == 'AMSBound':
         optimizer = AdaBound(net_parameters, lr=init_lr, amsbound=True,
                              **optim_processed_kwargs)
-    # below = untested
     elif optim_method == 'AdaMax':
         optimizer = Adamax(net_parameters, lr=init_lr,
                            **optim_processed_kwargs)
@@ -188,6 +191,29 @@ def get_optimizer_scheduler(
         optimizer = LRD(net_parameters, lr=init_lr,
                         # lr_dropout_rate=kwargs['lr_dropout_rate'],
                         **optim_processed_kwargs)
+    elif optim_method == 'AdamP':
+        if lr_scheduler == 'AdaS':
+            optimizer = AdamPVec(
+                net_parameters, lr=init_lr,
+                **optim_processed_kwargs)
+        else:
+            optimizer = AdamP(
+                net_parameters, lr=init_lr,
+                **optim_processed_kwargs)
+    elif optim_method == 'SGDP':
+        if 'momentum' not in optim_processed_kwargs.keys() or \
+                'weight_decay' not in optim_processed_kwargs.keys():
+            raise ValueError(
+                "'momentum' and 'weight_decay' need to be specified for"
+                " SGD optimizer in config.yaml::**kwargs")
+        if lr_scheduler == 'AdaS':
+            optimizer = SGDPVec(
+                net_parameters, lr=init_lr,
+                **optim_processed_kwargs)
+        else:
+            optimizer = SGDP(
+                net_parameters, lr=init_lr,
+                **optim_processed_kwargs)
     else:
         print(f"Adas: Warning: Unknown optimizer {optim_method}")
     if lr_scheduler == 'StepLR':

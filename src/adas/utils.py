@@ -110,7 +110,7 @@ def parse_config(
             f"config.yaml: unknown model {config['network']}." +
             f"Must be one of {valid_models}")
 
-    if config['scheduler'] == 'AdaS' and config['optimizer'] != 'SGD':
+    if config['scheduler'] == 'AdaS' and config['optimizer'] not in ['SGD', 'AdamP', 'SGDP']:
         raise ValueError(
             'config.yaml: AdaS can only be used with SGD')
 
