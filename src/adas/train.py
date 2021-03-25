@@ -46,6 +46,7 @@ if 'adas.' in mod_name:
     from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from .optim import get_optimizer_scheduler
+    from .optim.sam import SAMSGDVec, SAMSGD
     from .early_stop import EarlyStop
     from .optim.adasls import AdaSLS
     from .models import get_network
@@ -60,6 +61,7 @@ else:
     from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from optim import get_optimizer_scheduler
+    from optim.sam import SAMSGDVec, SAMSGD
     from early_stop import EarlyStop
     from optim.adasls import AdaSLS
     from models import get_network
@@ -432,6 +434,19 @@ class TrainingAgent:
                     loss = self.criterion(outputs, targets)
                     return loss, outputs
                 loss, outputs = self.optimizer.step(closure=closure)
+            if isinstance(self.optimizer, SAMSGD) or \
+                    isinstance(self.optimizer, SAMSGDVec):
+                def closure():
+                    outputs = self.network(inputs)
+                    loss = self.criterion(outputs, targets)
+                    loss.backward()
+                    return loss, outputs
+                if isinstance(self.scheduler, AdaS):
+                    loss, outputs = self.optimizer.step(
+                        self.metrics.layers_index_todo,
+                        self.scheduler.lr_vector, closure=closure)
+                else:
+                    loss, outputs = self.optimizer.step(closure=closure)
             else:
                 outputs = self.network(inputs)
                 loss = self.criterion(outputs, targets)
