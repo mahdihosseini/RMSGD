@@ -1,12 +1,20 @@
 from typing import Iterable, List
 
+import sys
+
 import torch
 from torch.optim._multi_tensor import SGD
+
+mod_name = vars(sys.modules[__name__])['__name__']
+if 'adas.' in mod_name:
+    from .sgd import SGDVec
+else:
+    from optim.sgd import SGDVec
 
 __all__ = ["SAMSGD"]
 
 
-class SAMSGDVec(SGD):
+class SAMSGDVec(SGDVec):
     """ SGD wrapped with Sharp-Aware Minimization
 
     Args:
@@ -88,7 +96,7 @@ class SAMSGDVec(SGD):
                                 epsilon)
             iteration_p += 1
 
-        super().step()
+        super().step(layers_index_todo, lr_vector)
         return loss, outputs
 
 
