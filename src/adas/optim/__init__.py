@@ -31,7 +31,7 @@ if 'adas.' in mod_name:
     from .lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
         OneCycleLR
     from .adamp import AdamPVec, AdamP
-    from .sam import SAMSGDVec, SAMSGD
+    from .sam import SAMVec, SAM
     from .sgdp import SGDPVec, SGDP
     from .novograd import NovoGrad
     from .adabound import AdaBound
@@ -58,7 +58,7 @@ else:
     from optim.lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
         OneCycleLR
     from optim.adamp import AdamPVec, AdamP
-    from optim.sam import SAMSGDVec, SAMSGD
+    from optim.sam import SAMVec, SAM
     from optim.sgdp import SGDPVec, SGDP
     from optim.novograd import NovoGrad
     from optim.adabound import AdaBound
@@ -204,12 +204,14 @@ def get_optimizer_scheduler(
                 **optim_processed_kwargs)
     elif optim_method == 'SAM':
         if lr_scheduler == 'AdaS':
-            optimizer = SAMSGDVec(
-                net_parameters, lr=init_lr,
+            optimizer = SAMVec(
+                net_parameters,
+                SGDVec,
+                lr=init_lr,
                 **optim_processed_kwargs)
         else:
-            optimizer = SAMSGD(
-                net_parameters, lr=init_lr,
+            optimizer = SAM(
+                net_parameters, SGD, lr=init_lr,
                 **optim_processed_kwargs)
     elif optim_method == 'SGDP':
         if 'momentum' not in optim_processed_kwargs.keys() or \

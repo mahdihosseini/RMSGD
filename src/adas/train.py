@@ -46,7 +46,7 @@ if 'adas.' in mod_name:
     from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from .optim import get_optimizer_scheduler
-    from .optim.sam import SAMSGDVec, SAMSGD
+    from .optim.sam import SAMVec, SAM
     from .early_stop import EarlyStop
     from .optim.adasls import AdaSLS
     from .models import get_network
@@ -61,7 +61,7 @@ else:
     from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from optim import get_optimizer_scheduler
-    from optim.sam import SAMSGDVec, SAMSGD
+    from optim.sam import SAMVec, SAM
     from early_stop import EarlyStop
     from optim.adasls import AdaSLS
     from models import get_network
@@ -434,19 +434,20 @@ class TrainingAgent:
                     loss = self.criterion(outputs, targets)
                     return loss, outputs
                 loss, outputs = self.optimizer.step(closure=closure)
-            if isinstance(self.optimizer, SAMSGD) or \
-                    isinstance(self.optimizer, SAMSGDVec):
-                def closure():
-                    outputs = self.network(inputs)
-                    loss = self.criterion(outputs, targets)
-                    loss.backward()
-                    return loss, outputs
+            if isinstance(self.optimizer, SAM) or \
+                    isinstance(self.optimizer, SAMVec):
+                outputs = self.network(inputs)
+                loss = self.criterion(outputs, targets)
+                loss.backward()
+                self.optimizer.first_step(zero_grad=True)
+                outputs = self.network(inputs)
+                self.criterion(outputs, targets).backward()
                 if isinstance(self.scheduler, AdaS):
-                    loss, outputs = self.optimizer.step(
+                    self.optimizer.second_step(
                         self.metrics.layers_index_todo,
-                        self.scheduler.lr_vector, closure=closure)
+                        self.scheduler.lr_vector, zero_grad=True)
                 else:
-                    loss, outputs = self.optimizer.step(closure=closure)
+                    self.optimizer.second_step(zero_grad=True)
             else:
                 outputs = self.network(inputs)
                 loss = self.criterion(outputs, targets)
