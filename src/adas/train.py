@@ -149,6 +149,16 @@ def args(sub_parser: _SubParsersAction):
     sub_parser.add_argument(
         '--rank', default=-1, type=int,
         help='Node rank for distributed training: Default = -1')
+    # sub_parser.add_argument(
+    #     '--cutout', action='store_true',
+    #     default=False,
+    #     help='Cutout flag')
+    # sub_parser.add_argument(
+    #     '--n-holes', default=-1, type=int,
+    #     help='N holes for cutout')
+    # sub_parser.add_argument(
+    #     '--cutout-length', default=-1, type=int,
+    #     help='Cutout length')
 
 
 class TrainingAgent:
@@ -228,6 +238,9 @@ class TrainingAgent:
                 name=config['dataset'], root=data_path,
                 mini_batch_size=config['mini_batch_size'],
                 num_workers=config['num_workers'],
+                cutout=config['cutout'],
+                n_holes=config['n_holes'],
+                length=config['cutout_length'],
                 dist=self.dist)
         self.criterion = torch.nn.CrossEntropyLoss().cuda(self.gpu) if \
             config['loss'] == 'cross_entropy' else None

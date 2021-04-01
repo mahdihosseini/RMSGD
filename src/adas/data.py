@@ -27,6 +27,7 @@ import sys
 import torchvision.transforms as transforms
 
 import torchvision
+import numpy as np
 import torch
 
 mod_name = vars(sys.modules[__name__])['__name__']
@@ -38,9 +39,60 @@ else:
 # from .folder2lmdb import ImageFolderLMDB
 
 
+class Cutout(object):
+    """Randomly mask out one or more patches from an image.
+    @author: uoguelph-mlrg
+      (https://github.com/uoguelph-mlrg/Cutout/blob/master/util/cutout.py)
+    Args:
+        n_holes (int): Number of patches to cut out of each image.
+        length (int): The length (in pixels) of each square patch.
+    """
+
+    def __init__(self, n_holes, length):
+        if n_holes < 0 or length < 0:
+            raise ValueError("Must set n_holes or length args for cutout")
+        self.n_holes = n_holes
+        self.length = length
+
+    def __call__(self, img):
+        """
+        Args:
+            img (Tensor): Tensor image of size (C, H, W).
+        Returns:
+            Tensor: Image with n_holes of dimension length x length cut out of
+            it.
+        """
+        h = img.size(1)
+        w = img.size(2)
+
+        mask = np.ones((h, w), np.float32)
+
+        for n in range(self.n_holes):
+            y = np.random.randint(h)
+            x = np.random.randint(w)
+
+            y1 = np.clip(y - self.length // 2, 0, h)
+            y2 = np.clip(y + self.length // 2, 0, h)
+            x1 = np.clip(x - self.length // 2, 0, w)
+            x2 = np.clip(x + self.length // 2, 0, w)
+
+            mask[y1: y2, x1: x2] = 0.
+
+        mask = torch.from_numpy(mask)
+        mask = mask.expand_as(img)
+        img = img * mask
+
+        return img
+
+
 def get_data(
         name: str, root: Path,
-        mini_batch_size: int, num_workers: int, dist: bool = False) -> None:
+        mini_batch_size: int,
+        num_workers: int,
+        cutout: bool = False,
+        n_holes: int = -1,
+        length: int = -1,
+        dist: bool = False) -> None:
     if name == 'CIFAR100':
         num_classes = 100
         transform_train = transforms.Compose([
@@ -51,6 +103,9 @@ def get_data(
                 mean=[x / 255.0 for x in [125.3, 123.0, 113.9]], std=[
                     x / 255.0 for x in [63.0, 62.1, 66.7]]),
         ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
 
         transform_test = transforms.Compose([
             transforms.ToTensor(),
@@ -84,6 +139,9 @@ def get_data(
             transforms.Normalize((0.4914, 0.4822, 0.4465),
                                  (0.2023, 0.1994, 0.2010)),
         ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
 
         transform_test = transforms.Compose([
             transforms.ToTensor(),
@@ -117,6 +175,9 @@ def get_data(
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                                  0.229, 0.224, 0.225]),
         ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
 
         transform_test = transforms.Compose([
             transforms.Resize(256),
@@ -163,6 +224,9 @@ def get_data(
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                                  0.229, 0.224, 0.225]),
         ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
 
         transform_test = transforms.Compose([
             transforms.Resize(64),

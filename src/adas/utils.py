@@ -169,4 +169,7 @@ def parse_config(
                 config['scheduler_kwargs'][k][i] = smart_string_to_float(val)
         else:
             config['scheduler_kwargs'][k] = smart_string_to_float(v)
+    if config['cutout']:
+        if config['n_holes'] < 0 or config['cutout_length'] < 0:
+            raise ValueError('N holes and length for cutout not set')
     return config
