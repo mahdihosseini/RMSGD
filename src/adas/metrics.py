@@ -1,6 +1,6 @@
 """
 """
-from typing import List, Any
+from typing import List
 
 import numpy as np
 import torch
@@ -9,39 +9,38 @@ from .components import LayerType, IOMetrics
 from .matrix_factorization import EVBMF
 
 
-class Metrics():
-    def __init__(self, parameters: List[Any], p: int) -> None:
+class Metrics:
+    def __init__(self, params: List[torch.nn.parameter.Parameters]) -> None:
         '''
         parameters: list of torch.nn.Module.parameters()
         '''
-        self.net_blocks = net_blocks = parameters
-        self.layers_index_todo = np.ones(shape=len(net_blocks), dtype='bool')
-        self.layers_info = list()
+        self.params = params
+        self.layers_todo = np.ones(shape=len(params), dtype='bool')
+        self.layers = list()
         self.number_of_conv = 0
         self.number_of_fc = 0
-        self.p = p
         self.historical_metrics = list()
-        for iteration_block in range(len(net_blocks)):
-            block_shape = net_blocks[iteration_block].shape
+        for iteration_block in range(len(params)):
+            block_shape = params[iteration_block].shape
             if len(block_shape) == 4:
-                self.layers_info = np.concatenate(
-                    [self.layers_info, [LayerType.CONV]], axis=0)
+                self.layers = np.concatenate(
+                    [self.layers, [LayerType.CONV]], axis=0)
                 self.number_of_conv += 1
             elif len(block_shape) == 2:
-                self.layers_info = np.concatenate(
-                    [self.layers_info, [LayerType.FC]], axis=0)
+                self.layers = np.concatenate(
+                    [self.layers, [LayerType.FC]], axis=0)
                 self.number_of_fc += 1
             else:
-                self.layers_info = np.concatenate(
-                    [self.layers_info, [LayerType.NON_CONV]], axis=0)
+                self.layers = np.concatenate(
+                    [self.layers, [LayerType.NON_CONV]], axis=0)
         self.final_decision_index = np.ones(
             shape=self.number_of_conv, dtype='bool')
-        self.conv_indices = [i for i in range(len(self.layers_info)) if
-                             self.layers_info[i] == LayerType.CONV]
-        self.fc_indices = [i for i in range(len(self.layers_info)) if
-                           self.layers_info[i] == LayerType.FC]
-        self.non_conv_indices = [i for i in range(len(self.layers_info)) if
-                                 self.layers_info[i] == LayerType.NON_CONV]
+        self.conv_indices = [i for i in range(len(self.layers)) if
+                             self.layers[i] == LayerType.CONV]
+        self.fc_indices = [i for i in range(len(self.layers)) if
+                           self.layers[i] == LayerType.FC]
+        self.non_conv_indices = [i for i in range(len(self.layers)) if
+                                 self.layers[i] == LayerType.NON_CONV]
 
     def evaluate(self, epoch: int) -> IOMetrics:
         '''
@@ -56,7 +55,7 @@ class Metrics():
         factorized_index_3 = np.zeros(len(self.conv_indices), dtype=bool)
         factorized_index_4 = np.zeros(len(self.conv_indices), dtype=bool)
         for block_index in range(len(self.conv_indices)):
-            layer_tensor = self.net_blocks[self.conv_indices[block_index]].data
+            layer_tensor = self.params[self.conv_indices[block_index]].data
             tensor_size = layer_tensor.shape
             mode_3_unfold = layer_tensor.permute(1, 0, 2, 3)
             mode_3_unfold = torch.reshape(
@@ -71,7 +70,7 @@ class Metrics():
                 input_channel_rank.append(
                     S_approx.shape[0] / tensor_size[1])
                 low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
-                low_rank_eigen = low_rank_eigen ** self.p
+                low_rank_eigen = low_rank_eigen
                 if len(low_rank_eigen) != 0:
                     input_channel_condition.append(
                         low_rank_eigen[0] / low_rank_eigen[-1])
@@ -116,7 +115,7 @@ class Metrics():
                 output_channel_rank.append(
                     S_approx.shape[0] / tensor_size[0])
                 low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
-                low_rank_eigen = low_rank_eigen ** self.p
+                low_rank_eigen = low_rank_eigen
                 if len(low_rank_eigen) != 0:
                     output_channel_condition.append(
                         low_rank_eigen[0] / low_rank_eigen[-1])

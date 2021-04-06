@@ -134,7 +134,7 @@ class AdaS(Optimizer):
 
         call_indices_fc = np.concatenate(
             (self.metrics.fc_indices,
-                [len(self.metrics.layers_info)]), axis=0)
+                [len(self.metrics.layers)]), axis=0)
         for iteration_fc in range(len(call_indices_fc) - 1):
             index_start = call_indices_fc[iteration_fc]
             index_end = call_indices_fc[iteration_fc + 1]
