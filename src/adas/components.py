@@ -1,6 +1,7 @@
 """
 """
 from typing import NamedTuple, List
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -10,15 +11,17 @@ class LayerType(Enum):
     NON_CONV = 3
 
 
-class IOMetrics(NamedTuple):
-    input_channel_rank: List[float]
-    input_channel_S: List[float]
-    input_channel_condition: List[float]
-    output_channel_rank: List[float]
-    output_channel_S: List[float]
-    output_channel_condition: List[float]
-    fc_S: float
-    fc_rank: float
+@dataclass
+class LayerMetrics:
+    rank: float
+    KG: float
+    condition: float
+
+
+@dataclass
+class ConvLayerMetrics:
+    input_channel: LayerMetrics
+    output_channel: LayerMetrics
 
 
 class LRMetrics(NamedTuple):
