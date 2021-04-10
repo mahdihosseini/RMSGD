@@ -1,14 +1,10 @@
 """
 """
-from copy import deepcopy
-from typing import List
-
 from torch.optim.optimizer import Optimizer, required
 
 import numpy as np
 import torch
 
-from .components import LayerMetrics, ConvLayerMetrics
 from .metrics import Metrics
 
 
@@ -24,7 +20,6 @@ class AdaS(Optimizer):
                  beta: float = 0.8,
                  step_size: int = None,
                  gamma: float = 1,
-                 n_buffer: int = 2,
                  momentum: float = 0,
                  dampening: float = 0,
                  weight_decay: float = 0,
@@ -75,44 +70,20 @@ class AdaS(Optimizer):
         else:
             KG = self.metrics.get_KG_list(epoch)
             velocity = np.abs(self.KG - KG)
-            # velocity[np.where(velocity < 0)] = 0.
             self.KG = KG
-            # print(velocity)
-            # n_replica = 2 - min(epoch + 1, 2)
-            # replica = np.tile(A=self.metrics.get_KG_list(
-            #     epoch), reps=(n_replica, 1))
-            # for iteration in range(2 - n_replica):
-            #     epoch_identifier = (epoch - 2 +
-            #                         n_replica + iteration + 1)
-            #     replica = np.concatenate((
-            #         replica,
-            #         np.tile(
-            #             A=self.metrics.get_KG_list(epoch_identifier),
-            #             reps=(1, 1))))
-            # x_regression = np.linspace(start=0, stop=1,
-            #                            num=2)
-
-            # # channel_replica = output_channel_replica
-
-            # """Calculate Rank Velocity"""
-            # velocity = np.polyfit(
-            #     x=x_regression, y=replica, deg=1)[0]
-            # print(velocity)
+            velocity[np.where(np.isclose(velocity, 0.))] = self.init_lr
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 self.lr_vector *= self.gamma
 
-        count = 0
         self.velocity = self.beta * self.velocity + velocity
-        for idx in range(len(self.metrics.params)):
-            if idx in self.metrics.mask:
-                if idx > 0:
-                    self.lr_vector[idx] = self.lr_vector[idx - 1]
-                else:
-                    self.lr_vector[idx] = self.lr_vector[idx]
+        count = 0
+        for i in range(len(self.metrics.params)):
+            if i in self.metrics.mask:
+                self.lr_vector[i] = self.lr_vector[i - (1 if i > 0 else 0)]
             else:
-                self.lr_vector[idx] = self.velocity[count]
+                self.lr_vector[i] = self.velocity[count]
                 count += 1
 
     def step(self, closure: callable = None):

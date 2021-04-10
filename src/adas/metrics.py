@@ -19,7 +19,6 @@ class Metrics:
         self.mask = list()
         for param_idx, param in enumerate(params):
             param_shape = param.shape
-            # if len(param_shape) != 4:
             if len(param_shape) != 4 and len(param_shape) != 2:
                 self.mask.append(param_idx)
 
