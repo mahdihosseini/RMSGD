@@ -30,7 +30,7 @@
 - AdaS introduces no computational overhead over adaptive optimizers (see [experimental results](#some-experimental-results))
 - In addition to optimization, AdaS introduces new probing metrics for CNN layer evaulation ([quality metrics](#knowledge-gain-vs-mapping-condition---cnn-quality-metrics))
 
-This repository contains a [PyTorch](https://pytorch.org/) implementation of the AdaS learning rate scheduler algorithm.
+This repository contains a [PyTorch](https://pytorch.org/) implementation of the AdaS learning rate scheduler algorithm as well as the Knowledge Gain and Mapping Condition metrics.
 
 ### License ###
 AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for more information)
@@ -72,9 +72,8 @@ Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wik
 AdaS introduces no overhead (very minimal) over adaptive optimizers e.g. all mSGD+StepLR, mSGD+AdaS, AdaM consume 40~43 sec/epoch to train ResNet34/CIFAR10 using the same PC/GPU platform
 
 ### Installation ###
-There are two versions of the AdaS code contained in this repository.
-1. a python-package version of the AdaS code, which can be `pip`-installed.
-2. a static python module (unpackaged), runable as a script.
+1. You can install AdaS directly from PyPi using `pip install adas', or clone this repository and install from source. 
+2. You can also download the files in `src/adas` into your local code base and use them directly. Note that you will probably need to modify the imports to be consistent with however you perform imports in your codebase.
 
 All source code can be found in [src/adas](src/adas)
 
@@ -82,39 +81,28 @@ For more information, also refer to [Installation on Wiki](https://github.com/ma
 
 
 ### Usage ###
-Moving forward, I will refer to console usage of this library. IDE usage is no different. Training options are split two ways:
-1. all environment/infrastructure options (GPU usage, output paths, etc.) is specified using arguments.
-2. training specific options (network, dataset, hyper-parameters, etc.) is specified using a configuration **config.yaml** file:
+The use AdaS, simply import the `AdaS(torch.optim.optimier.Optimizer)` class and use it as follows:
+```Python
+from adas import AdaS
 
-```yaml
-###### Application Specific ######
-dataset: 'CIFAR10'
-network: 'VGG16'
-optimizer: 'SGD'
-scheduler: 'AdaS'
-
-
-###### Suggested Tune ######
-init_lr: 0.03
-early_stop_threshold: 0.001
-optimizer_kwargs:
-  momentum: 0.9
-  weight_decay: 5e-4
-scheduler_kwargs:
-  beta: 0.8
-
-###### Suggested Default ######
-n_trials: 5
-max_epoch: 150
-num_workers: 4
-early_stop_patience: 10
-mini_batch_size: 128
-p: 1 # options: 1, 2.
-loss: 'cross_entropy'
+optimizer = AdaS(params=model.parameters(),
+                 listed_params=list(model.parameters()),
+                 lr: float = ???,
+                 beta: float = 0.8
+                 step_size: int = None,
+                 gamma: float = 1,
+                 momentum: float = 0,
+                 dampening: float = 0,
+                 weight_decay: float = 0,
+                 nesterov: bool = False):
+...
+for batch in train_dataset:
+    ...
+    loss.backward()
+    optimizer.step()
+optimizer.epoch_step()
 ```
-
-For complete instruction on configuration and different parameter setup, please refer to [Configuration on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Configuration-File)
-
+Note, `optipmizer.epoch_step()` is just to be called at the end of each epoch.
 ### Common Issues (running list) ###
 - None :)
 
