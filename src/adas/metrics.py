@@ -1,53 +1,35 @@
 """
 """
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import numpy as np
 import torch
 
-from components import LayerMetrics, ConvLayerMetrics
-from matrix_factorization import EVBMF
+from .components import LayerMetrics, ConvLayerMetrics
+from .matrix_factorization import EVBMF
 
 
 class Metrics:
-    def __init__(self, params: List[torch.nn.parameter.Parameters]) -> None:
+    def __init__(self, params) -> None:
         '''
         parameters: list of torch.nn.Module.parameters()
         '''
         self.params = params
-        self.layers_todo = np.ones(shape=len(params), dtype='bool')
-        # self.layers = list()
-        self.number_of_conv = 0
-        self.number_of_fc = 0
-        self.historical_metrics = list()
-        # for iteration_block in range(len(params)):
-        #     block_shape = params[iteration_block].shape
-        #     if len(block_shape) == 4:
-        #         self.layers = np.concatenate(
-        #             [self.layers, [LayerType.CONV]], axis=0)
-        #         self.number_of_conv += 1
-        #     elif len(block_shape) == 2:
-        #         self.layers = np.concatenate(
-        #             [self.layers, [LayerType.FC]], axis=0)
-        #         self.number_of_fc += 1
-        #     else:
-        #         self.layers = np.concatenate(
-        #             [self.layers, [LayerType.NON_CONV]], axis=0)
-        # self.conv_indices = [i for i in range(len(self.layers)) if
-        #                      self.layers[i] == LayerType.CONV]
-        # self.fc_indices = [i for i in range(len(self.layers)) if
-        #                    self.layers[i] == LayerType.FC]
-        # self.non_conv_indices = [i for i in range(len(self.layers)) if
-        #                          self.layers[i] == LayerType.NON_CONV]
+        self.history = list()
+        self.mask = list()
+        for param_idx, param in enumerate(params):
+            param_shape = param.shape
+            # if len(param_shape) != 4:
+            if len(param_shape) != 4 and len(param_shape) != 2:
+                self.mask.append(param_idx)
 
     def compute_low_rank(self, tensor: torch.Tensor,
-                         epoch: int) -> torch.Tensor:
-        tensor_size = tensor.shape
-        # try:
+                         normalizer: float) -> torch.Tensor:
+        if tensor.requires_grad:
+            tensor = tensor.detach()
         U_approx, S_approx, V_approx = EVBMF(tensor)
-        rank = S_approx.shape[0] / tensor_size[1]
+        rank = S_approx.shape[0] / normalizer
         low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
-        low_rank_eigen = low_rank_eigen
         if len(low_rank_eigen) != 0:
             condition = low_rank_eigen[0] / low_rank_eigen[-1]
             sum_low_rank_eigen = low_rank_eigen / \
@@ -56,32 +38,29 @@ class Metrics:
         else:
             condition = 0
             sum_low_rank_eigen = 0
-        # factorized_index_3[block_index] = True
-        KG = sum_low_rank_eigen / tensor_size[1]
-        # except Exception:
-        #     S_approx = torch.zeros(0, 0)
-        #     if epoch > 0:
-        #         rank.append(
-        #             self.historical_metrics[-1].input_channel_rank[block_index])
-        #         KG.append(
-        #             self.historical_metrics[-1].input_channel_S[block_index])
-        #         condition.append(
-        #             self.historical_metrics[-1].input_channel_condition[block_index])
-        #     else:
-        #         rank.append(0)
-        #         KG.append(0)
-        #         condition.append(0)
+        KG = sum_low_rank_eigen / normalizer
         return rank, KG, condition
 
-    def __call__(self, epoch: int) -> List[int, Union[LayerMetrics,
-                                                      ConvLayerMetrics]]:
+    def get_KG_list(self, epoch: int) -> np.ndarray:
+        KG_list = list()
+        for i, (index, metric) in enumerate(self.history[epoch]):
+            if isinstance(metric, ConvLayerMetrics):
+                KG_list.append((metric.input_channel.KG +
+                                metric.output_channel.KG) / 2)
+            elif isinstance(metric, LayerMetrics):
+                KG_list.append(metric.KG)
+        return np.array(KG_list)
+
+    def __call__(self) -> List[Tuple[int, Union[LayerMetrics,
+                                                ConvLayerMetrics]]]:
         '''
         Computes the knowledge gain (S) and mapping condition (condition)
         '''
-        metrics: List[int, Union[LayerMetrics, ConvLayerMetrics]] = list()
-        # factorized_index_3 = np.zeros(len(self.conv_indices), dtype=bool)
-        # factorized_index_4 = np.zeros(len(self.conv_indices), dtype=bool)
-        for layer_index, layer in self.params:
+        metrics: List[Tuple[int, Union[LayerMetrics,
+                                       ConvLayerMetrics]]] = list()
+        for layer_index, layer in enumerate(self.params):
+            # if np.less(np.prod(layer.shape), 10_000):
+            #     metrics.append((layer_index, None))
             if len(layer.shape) == 4:
                 layer_tensor = layer.data
                 tensor_size = layer_tensor.shape
@@ -94,9 +73,9 @@ class Metrics:
                     mode_4_unfold, [tensor_size[0], tensor_size[1] *
                                     tensor_size[2] * tensor_size[3]])
                 in_rank, in_KG, in_condition = self.compute_low_rank(
-                    mode_3_unfold, epoch)
+                    mode_3_unfold, tensor_size[1])
                 out_rank, out_KG, out_condition = self.compute_low_rank(
-                    mode_4_unfold, epoch)
+                    mode_4_unfold, tensor_size[0])
                 metrics.append((layer_index, ConvLayerMetrics(
                     input_channel=LayerMetrics(
                         rank=in_rank,
@@ -107,12 +86,13 @@ class Metrics:
                         KG=out_KG,
                         condition=out_condition))))
             elif len(layer.shape) == 2:
-                rank, KG, condition = self.compute_low_rank(layer, epoch)
+                rank, KG, condition = self.compute_low_rank(
+                    layer, layer.shape[0])
                 metrics.append((layer_index, LayerMetrics(
                     rank=rank,
                     KG=KG,
                     condition=condition)))
             else:
                 metrics.append((layer_index, None))
-        self.historical_metrics.append(metrics)
+        self.history.append(metrics)
         return metrics

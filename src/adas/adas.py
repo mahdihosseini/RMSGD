@@ -1,5 +1,6 @@
 """
 """
+from copy import deepcopy
 from typing import List
 
 from torch.optim.optimizer import Optimizer, required
@@ -7,8 +8,8 @@ from torch.optim.optimizer import Optimizer, required
 import numpy as np
 import torch
 
-from components import LayerMetrics, ConvLayerMetrics
-from metrics import Metrics
+from .components import LayerMetrics, ConvLayerMetrics
+from .metrics import Metrics
 
 
 class AdaS(Optimizer):
@@ -17,12 +18,12 @@ class AdaS(Optimizer):
     """
 
     def __init__(self,
-                 params: List[torch.nn.parameter.Parameters],
+                 params,
+                 listed_params,
                  lr: float = required,
                  beta: float = 0.8,
                  step_size: int = None,
                  gamma: float = 1,
-                 zeta: float = 1.,
                  n_buffer: int = 2,
                  momentum: float = 0,
                  dampening: float = 0,
@@ -48,15 +49,18 @@ class AdaS(Optimizer):
             raise ValueError(f'Invalid beta: {beta}')
         if np.less(gamma, 0):
             raise ValueError(f'Invalid gamma: {gamma}')
-        if np.less_equal(step_size, 0):
-            raise ValueError(f'Invalid step_size: {step_size}')
+        if step_size is not None:
+            if np.less_equal(step_size, 0):
+                raise ValueError(f'Invalid step_size: {step_size}')
         self.step_size = step_size
         self.gamma = gamma
         self.beta = beta
-        self.metrics = metrics = Metrics(params=params)
+        self.metrics = metrics = Metrics(params=listed_params)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
+        self.velocity = np.zeros(
+            len(self.metrics.params) - len(self.metrics.mask))
         self.init_lr = lr
-        self.zeta = zeta
+        self.KG = 0.
 
     def __setstate__(self, state):
         super(AdaS, self).__setstate__(state)
@@ -64,37 +68,52 @@ class AdaS(Optimizer):
             group.setdefault('nesterov', False)
 
     def epoch_step(self, epoch: int) -> None:
+        self.metrics()
         if epoch == 0:
-            cur_KG = self.init_lr * np.ones(len(self.params))
+            velocity = self.init_lr * np.ones(len(self.velocity))
+            self.KG = self.metrics.get_KG_list(epoch)
         else:
-            cur_KG = np.zeros(len(self.params))
-            prev_KG = np.zeros(len(self.params))
-            for layer_index, metrics in self.metrics.historical_metrics[-1]:
-                cur_KG[layer_index] = \
-                    metrics.KG if isinstance(metrics, LayerMetrics) else \
-                    0.5 * (metrics.input_channel.KG +
-                           metrics.output_channel.KG) if \
-                    isinstance(metrics, ConvLayerMetrics) else None
-            for layer_index, metrics in self.metrics.historical_metrics[-2]:
-                prev_KG[layer_index] = \
-                    metrics.KG if isinstance(metrics, LayerMetrics) else \
-                    0.5 * (metrics.input_channel.KG +
-                           metrics.output_channel.KG) if \
-                    isinstance(metrics, ConvLayerMetrics) else None
+            KG = self.metrics.get_KG_list(epoch)
+            velocity = np.abs(self.KG - KG)
+            # velocity[np.where(velocity < 0)] = 0.
+            self.KG = KG
+            # print(velocity)
+            # n_replica = 2 - min(epoch + 1, 2)
+            # replica = np.tile(A=self.metrics.get_KG_list(
+            #     epoch), reps=(n_replica, 1))
+            # for iteration in range(2 - n_replica):
+            #     epoch_identifier = (epoch - 2 +
+            #                         n_replica + iteration + 1)
+            #     replica = np.concatenate((
+            #         replica,
+            #         np.tile(
+            #             A=self.metrics.get_KG_list(epoch_identifier),
+            #             reps=(1, 1))))
+            # x_regression = np.linspace(start=0, stop=1,
+            #                            num=2)
+
+            # # channel_replica = output_channel_replica
+
+            # """Calculate Rank Velocity"""
+            # velocity = np.polyfit(
+            #     x=x_regression, y=replica, deg=1)[0]
+            # print(velocity)
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 self.lr_vector *= self.gamma
-                self.zeta *= self.gamma
 
-        for i in range(len(cur_KG)):
-            if cur_KG[i] is None:
-                cur_KG[i] = cur_KG[i - 1]
-            if prev_KG[i] is None:
-                prev_KG[i] = prev_KG[i - 1]
-
-        self.lr_vector = self.beta * self.lr_vector + \
-            self.zeta * (cur_KG - prev_KG)
+        count = 0
+        self.velocity = self.beta * self.velocity + velocity
+        for idx in range(len(self.metrics.params)):
+            if idx in self.metrics.mask:
+                if idx > 0:
+                    self.lr_vector[idx] = self.lr_vector[idx - 1]
+                else:
+                    self.lr_vector[idx] = self.lr_vector[idx]
+            else:
+                self.lr_vector[idx] = self.velocity[count]
+                count += 1
 
     def step(self, closure: callable = None):
         """Performs a single optimization step.
@@ -116,6 +135,8 @@ class AdaS(Optimizer):
             nesterov = group['nesterov']
 
             for p_index, p in enumerate(group['params']):
+                if p.grad is None:
+                    continue
                 d_p = p.grad.data
                 if weight_decay != 0:
                     d_p.add_(weight_decay, p.data)
