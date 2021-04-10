@@ -98,11 +98,12 @@ optimizer = AdaS(params=model.parameters(),
                  weight_decay: float = 0,
                  nesterov: bool = False):
 ...
-for batch in train_dataset:
-    ...
-    loss.backward()
-    optimizer.step()
-optimizer.epoch_step()
+for epoch in epochs:
+    for batch in train_dataset:
+        ...
+        loss.backward()
+        optimizer.step()
+    optimizer.epoch_step(epoch)
 ```
 Note, `optipmizer.epoch_step()` is just to be called at the end of each epoch.
 ### Common Issues (running list) ###
