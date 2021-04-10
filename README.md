@@ -32,6 +32,8 @@
 
 This repository contains a [PyTorch](https://pytorch.org/) implementation of the AdaS learning rate scheduler algorithm as well as the Knowledge Gain and Mapping Condition metrics.
 
+Visit the `paper` branch to see the paper-related code. You can use that code to replicate experiments from the paper.
+
 ### License ###
 AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for more information)
 |Permissions|Conditions|Limitations|
