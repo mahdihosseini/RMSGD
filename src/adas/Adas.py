@@ -54,6 +54,7 @@ class Adas(Optimizer):
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
         self.velocity = np.zeros(
             len(self.metrics.params) - len(self.metrics.mask))
+        self.not_ready = list(range(len(self.velocity)))
         self.init_lr = lr
         self.KG = 0.
 
@@ -71,7 +72,10 @@ class Adas(Optimizer):
             KG = self.metrics.get_KG_list(epoch)
             velocity = np.abs(self.KG - KG)
             self.KG = KG
-            velocity[np.where(np.isclose(velocity, 0.))] = self.init_lr
+            for idx in self.not_ready:
+                if np.isclose(velocity[idx], 0.):
+                    velocity[idx] = self.init_lr
+                    self.not_ready.remove(idx)
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
