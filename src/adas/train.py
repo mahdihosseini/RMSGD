@@ -56,7 +56,7 @@ if 'adas.' in mod_name:
     from .optim.sls import SLS
     from .optim.sps import SPS
     from .data import get_data
-    from .AdaS import AdaS
+    from .optim.adas import Adas
 else:
     from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
@@ -71,7 +71,7 @@ else:
     from optim.sls import SLS
     from optim.sps import SPS
     from data import get_data
-    from AdaS import AdaS
+    from optim.adas import Adas
 
 
 def args(sub_parser: _SubParsersAction):
@@ -331,13 +331,11 @@ class TrainingAgent:
                         self.checkpoint['state_dict_network'])
                     self.optimizer.load_state_dict(
                         self.checkpoint['state_dict_optimizer'])
-                    if not isinstance(self.scheduler, AdaS) \
-                            and self.scheduler is not None:
-                        self.scheduler.load_state_dict(
-                            self.checkpoint['state_dict_scheduler'])
-                    else:
-                        self.metrics.historical_metrics = \
-                            self.checkpoint['historical_metrics']
+                    self.scheduler.load_state_dict(
+                        self.checkpoint['state_dict_scheduler'])
+                    # else:
+                    #     self.metrics.historical_metrics = \
+                    #         self.checkpoint['historical_metrics']
                     epochs = range(self.start_epoch, self.config['max_epochs'])
                     self.output_filename = self.checkpoint['output_filename']
                     self.performance_statistics = self.checkpoint[
@@ -403,8 +401,7 @@ class TrainingAgent:
                         'state_dict_network': self.network.state_dict(),
                         'state_dict_optimizer': self.optimizer.state_dict(),
                         'state_dict_scheduler': self.scheduler.state_dict()
-                        if not isinstance(self.scheduler, AdaS) and
-                        self.scheduler is not None else None,
+                        if self.scheduler is not None else None,
                         'best_acc1': self.best_acc1,
                         'performance_statistics': self.performance_statistics,
                         'output_filename': Path(self.output_filename).name,
@@ -455,7 +452,7 @@ class TrainingAgent:
                 self.optimizer.first_step(zero_grad=True)
                 outputs = self.network(inputs)
                 self.criterion(outputs, targets).backward()
-                if isinstance(self.scheduler, AdaS):
+                if isinstance(self.scheduler, Adas):
                     self.optimizer.second_step(
                         self.metrics.layers_index_todo,
                         self.scheduler.lr_vector, zero_grad=True)
@@ -465,10 +462,10 @@ class TrainingAgent:
                 outputs = self.network(inputs)
                 loss = self.criterion(outputs, targets)
                 loss.backward()
-                if isinstance(self.scheduler, AdaS):
-                    self.optimizer.step(self.metrics.layers_index_todo,
-                                        self.scheduler.lr_vector)
-                elif isinstance(self.optimizer, SPS):
+                # if isinstance(self.scheduler, AdaS):
+                #     self.optimizer.step(self.metrics.layers_index_todo,
+                #                         self.scheduler.lr_vector)
+                if isinstance(self.optimizer, SPS):
                     self.optimizer.step(loss=loss)
                 else:
                     self.optimizer.step()
@@ -508,12 +505,12 @@ class TrainingAgent:
         self.performance_statistics[f'out_condition_epoch_{epoch}'] = \
             io_metrics.output_channel_condition
         # if GLOBALS.ADAS is not None:
-        if isinstance(self.scheduler, AdaS):
-            lrmetrics = self.scheduler.step(epoch, self.metrics)
+        if isinstance(self.optimizer, Adas):
+            self.optimizer.epoch_step(epoch)
             self.performance_statistics[f'rank_velocity_epoch_{epoch}'] = \
-                lrmetrics.rank_velocity
+                self.optimizer.velocity[:-1]
             self.performance_statistics[f'learning_rate_epoch_{epoch}'] = \
-                lrmetrics.r_conv
+                self.optimizer.velocity[:-1]
         else:
             # if GLOBALS.CONFIG['optim_method'] == 'SLS' or \
             #         GLOBALS.CONFIG['optim_method'] == 'SPS':

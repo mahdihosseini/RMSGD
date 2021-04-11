@@ -47,7 +47,8 @@ if 'adas.' in mod_name:
     from .nadam import NAdam
     from .padam import PAdam
     from .radam import RAdam
-    from ..AdaS import AdaS
+    # from ..AdaS import AdaS
+    from .adas import Adas
     from .sgd import SGDVec
     from .adam import Adam
     from .sgd import SGD
@@ -74,7 +75,8 @@ else:
     from optim.nadam import NAdam
     from optim.padam import PAdam
     from optim.radam import RAdam
-    from AdaS import AdaS
+    # from AdaS import AdaS
+    from adas import Adas
     from optim.sgd import SGDVec
     from optim.adam import Adam
     from optim.sgd import SGD
@@ -100,24 +102,23 @@ def get_optimizer_scheduler(
         k: v for k, v in optimizer_kwargs.items() if v is not None}
     scheduler_processed_kwargs = {
         k: v for k, v in scheduler_kwargs.items() if v is not None}
-    if optim_method == 'SGD':
+    if optim_method == "Adas":
+        optimizer = Adas(
+            params=net_parameters,
+            listed_params=listed_params,
+            lr=init_lr,
+            **optim_processed_kwargs)
+    elif optim_method == 'SGD':
         if 'momentum' not in optim_processed_kwargs.keys() or \
                 'weight_decay' not in optim_processed_kwargs.keys():
             raise ValueError(
                 "'momentum' and 'weight_decay' need to be specified for"
                 " SGD optimizer in config.yaml::**kwargs")
-        if lr_scheduler == 'AdaS':
-            optimizer = SGDVec(
-                net_parameters, lr=init_lr,
-                # momentum=kwargs['momentum'],
-                # weight_decay=kwargs['weight_decay'],
-                **optim_processed_kwargs)
-        else:
-            optimizer = SGD(
-                net_parameters, lr=init_lr,
-                # momentum=kwargs['momentum'],
-                # weight_decay=kwargs['weight_decay']
-                **optim_processed_kwargs)
+        optimizer = SGD(
+            net_parameters, lr=init_lr,
+            # momentum=kwargs['momentum'],
+            # weight_decay=kwargs['weight_decay']
+            **optim_processed_kwargs)
     elif optim_method == 'NAG':
         if 'momentum' not in optim_processed_kwargs.keys() or \
                 'weight_decay' not in optim_processed_kwargs.keys():
@@ -258,19 +259,19 @@ def get_optimizer_scheduler(
             optimizer, max_lr=init_lr,
             steps_per_epoch=train_loader_len, epochs=max_epochs,
             **scheduler_processed_kwargs)
-    elif lr_scheduler == 'AdaS':
-        if 'beta' not in scheduler_processed_kwargs.keys() or \
-                'p' not in scheduler_processed_kwargs.keys():
-            raise ValueError(
-                "'beta', 'p' need to be specified for"
-                " AdaS scheduler in config.yaml::**kwargs")
-        scheduler = AdaS(parameters=listed_params,
-                         init_lr=init_lr,
-                         # min_lr=kwargs['min_lr'],
-                         # p=kwargs['p'],
-                         # beta=kwargs['beta'],
-                         # zeta=kwargs['zeta'],
-                         **scheduler_processed_kwargs)
+    # elif lr_scheduler == 'AdaS':
+    #     if 'beta' not in scheduler_processed_kwargs.keys() or \
+    #             'p' not in scheduler_processed_kwargs.keys():
+    #         raise ValueError(
+    #             "'beta', 'p' need to be specified for"
+    #             " AdaS scheduler in config.yaml::**kwargs")
+    #     scheduler = AdaS(parameters=listed_params,
+    #                      init_lr=init_lr,
+    #                      # min_lr=kwargs['min_lr'],
+    #                      # p=kwargs['p'],
+    #                      # beta=kwargs['beta'],
+    #                      # zeta=kwargs['zeta'],
+    #                      **scheduler_processed_kwargs)
     elif lr_scheduler not in ['None', '']:
         print(f"Adas: Warning: Unknown LR scheduler {lr_scheduler}")
     return (optimizer, scheduler)

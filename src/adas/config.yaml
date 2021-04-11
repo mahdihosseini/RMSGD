@@ -7,19 +7,18 @@ network: 'ResNet34CIFAR' # AlexNet, DenseNet201, DenseNet169, DenseNet161, Dense
 # SqueezeNet_1_1, VGG11, VGG11_BN, VGG13, VGG13_BN, VGG16, VGG16_BN, VGG19, VGG19_BN,
 # EfficientNetB4
 # ResNet101CIFAR, ResNet50CIFAR, ResNet34CIFAR, ResNet18CIFAR, ResNeXtCIFAR, EfficientNetB0CIFAR, VGG16CIFAR, DenseNet121CIFAR
-optimizer: 'SAM' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
-scheduler: 'StepLR' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
+optimizer: 'Adas' # options: SGD, AdaM, AdaGrad, RMSProp, AdaDelta
+scheduler: 'None' # options: AdaS (with SGD), StepLR, CosineAnnealingWarmRestarts, OneCycleLR
 
 
 ###### Suggested Tune ######
-init_lr: 0.1
+init_lr: 0.03
 early_stop_threshold: -1 # set to -1 if you wish not to use early stop, or equally, set to a high value. Set to -1 if not using AdaS
 optimizer_kwargs:
   weight_decay: 0.9
   momentum: 5e-4
-scheduler_kwargs:
-  step_size: 25
-  gamma: 0.5
+  beta: 0.8
+scheduler_kwargs: {}
 cutout: True
 n_holes: 10
 cutout_length: 10
