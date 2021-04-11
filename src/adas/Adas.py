@@ -8,7 +8,7 @@ import torch
 from .metrics import Metrics
 
 
-class AdaS(Optimizer):
+class Adas(Optimizer):
     """
     Vectorized SGD from torch.optim.SGD
     """
@@ -37,9 +37,9 @@ class AdaS(Optimizer):
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
-        super(AdaS, self).__init__(params, defaults)
+        super(Adas, self).__init__(params, defaults)
 
-        # AdaS Specific stuff (not SGD)
+        # Adas Specific stuff (not SGD)
         if np.less(beta, 0) or np.greater_equal(beta, 1):
             raise ValueError(f'Invalid beta: {beta}')
         if np.less(gamma, 0):
@@ -58,7 +58,7 @@ class AdaS(Optimizer):
         self.KG = 0.
 
     def __setstate__(self, state):
-        super(AdaS, self).__setstate__(state)
+        super(Adas, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('nesterov', False)
 
