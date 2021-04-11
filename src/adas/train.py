@@ -76,7 +76,7 @@ else:
 
 def args(sub_parser: _SubParsersAction):
     # print("\n---------------------------------")
-    # print("AdaS Train Args")
+    # print("Adas Train Args")
     # print("---------------------------------\n")
     # sub_parser.add_argument(
     #     '-vv', '--very-verbose', action='store_true',
@@ -212,7 +212,7 @@ class TrainingAgent:
         self.checkpoint_path = checkpoint_path
 
         self.load_config(config_path, data_path)
-        print("AdaS: Experiment Configuration")
+        print("Adas: Experiment Configuration")
         print("-"*45)
         for k, v in self.config.items():
             if isinstance(v, list) or isinstance(v, dict):
@@ -245,13 +245,13 @@ class TrainingAgent:
         self.criterion = torch.nn.CrossEntropyLoss().cuda(self.gpu) if \
             config['loss'] == 'cross_entropy' else None
         if np.less(float(config['early_stop_threshold']), 0):
-            print("AdaS: Notice: early stop will not be used as it was " +
+            print("Adas: Notice: early stop will not be used as it was " +
                   f"set to {config['early_stop_threshold']}, " +
                   "training till completion")
         elif config['optimizer'] != 'SGD' and \
-                config['scheduler'] != 'AdaS':
-            print("AdaS: Notice: early stop will not be used as it is not " +
-                  "SGD with AdaS, training till completion")
+                config['scheduler'] != 'Adas':
+            print("Adas: Notice: early stop will not be used as it is not " +
+                  "SGD with Adas, training till completion")
             config['early_stop_threshold'] = -1.
         self.early_stop = EarlyStop(
             patience=int(config['early_stop_patience']),
@@ -391,7 +391,7 @@ class TrainingAgent:
 
             df.to_excel(self.output_filename)
             if self.early_stop(train_loss):
-                print("AdaS: Early stop activated.")
+                print("Adas: Early stop activated.")
                 break
             if not self.mpd or \
                     (self.mpd and self.rank % self.ngpus_per_node == 0):
@@ -462,7 +462,7 @@ class TrainingAgent:
                 outputs = self.network(inputs)
                 loss = self.criterion(outputs, targets)
                 loss.backward()
-                # if isinstance(self.scheduler, AdaS):
+                # if isinstance(self.scheduler, Adas):
                 #     self.optimizer.step(self.metrics.layers_index_todo,
                 #                         self.scheduler.lr_vector)
                 if isinstance(self.optimizer, SPS):
@@ -559,7 +559,7 @@ class TrainingAgent:
         #         'acc': acc,
         #         'epoch': epoch + 1,
         #     }
-        #     if not isinstance(self.scheduler, AdaS):
+        #     if not isinstance(self.scheduler, Adas):
         #         state['historical_io_metrics'] = \
         #             self.metrics.historical_metrics
         #     torch.save(state, str(self.checkpoint_path / 'ckpt.pth'))
@@ -618,12 +618,12 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
     checkpoint_path = root_path / Path(args.checkpoint).expanduser()
 
     if not config_path.exists():
-        raise ValueError(f"AdaS: Config path {config_path} does not exist")
+        raise ValueError(f"Adas: Config path {config_path} does not exist")
     if not data_path.exists():
-        print(f"AdaS: Data dir {data_path} does not exist, building")
+        print(f"Adas: Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"AdaS: Output dir {output_path} does not exist, building")
+        print(f"Adas: Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         checkpoint_path.mkdir(exist_ok=True, parents=True)
@@ -635,7 +635,7 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
 
 
 def main(args: APNamespace):
-    print("AdaS: Argument Parser Options")
+    print("Adas: Argument Parser Options")
     print("-"*45)
     for arg in vars(args):
         attr = getattr(args, arg)
@@ -680,7 +680,7 @@ def main_worker(gpu: int, ngpus_per_node: int, args: APNamespace):
         mpd=args.mpd,
         dist_url=args.dist_url,
         dist_backend=args.dist_backend)
-    print(f"AdaS: Pytorch device is set to {training_agent.device}")
+    print(f"Adas: Pytorch device is set to {training_agent.device}")
     training_agent.train()
 
 

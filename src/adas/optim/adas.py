@@ -92,6 +92,7 @@ class Adas(Optimizer):
             else:
                 self.lr_vector[i] = self.velocity[count]
                 count += 1
+        print(self.lr_vector)
 
     def step(self, closure: callable = None):
         """Performs a single optimization step.
