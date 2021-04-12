@@ -75,7 +75,8 @@ class Adas(Optimizer):
             for idx in self.not_ready:
                 if np.isclose(velocity[idx], 0.):
                     velocity[idx] = self.init_lr
-                    self.not_ready.remove(idx)
+            else:
+                self.not_ready.remove(idx)
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
