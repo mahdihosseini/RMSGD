@@ -72,19 +72,17 @@ class Adas(Optimizer):
             KG = self.metrics.get_KG_list(epoch)
             velocity = np.abs(self.KG - KG)
             self.KG = KG
-            print(velocity)
             for idx in self.not_ready:
                 if np.isclose(velocity[idx], 0.):
                     velocity[idx] = self.init_lr
+                else:
                     self.not_ready.remove(idx)
-            print(velocity)
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 self.lr_vector *= self.gamma
 
         self.velocity = self.beta * self.velocity + velocity
-        print(self.velocity)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
@@ -92,7 +90,6 @@ class Adas(Optimizer):
             else:
                 self.lr_vector[i] = self.velocity[count]
                 count += 1
-        print(self.lr_vector)
 
     def step(self, closure: callable = None):
         """Performs a single optimization step.
