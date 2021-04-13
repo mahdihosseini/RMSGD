@@ -67,22 +67,23 @@ class Adas(Optimizer):
         self.metrics()
         if epoch == 0:
             velocity = self.init_lr * np.ones(len(self.velocity))
-            self.KG = self.metrics.get_KG_list(epoch)
+            self.KG = self.metrics.KG(epoch)
         else:
-            KG = self.metrics.get_KG_list(epoch)
-            velocity = np.abs(self.KG - KG)
+            KG = self.metrics.KG(epoch)
+            velocity = KG - self.KG
             self.KG = KG
             for idx in self.not_ready:
                 if np.isclose(velocity[idx], 0.):
-                    velocity[idx] = self.init_lr
-            else:
-                self.not_ready.remove(idx)
+                    velocity[idx] = self.init_lr - \
+                        self.beta * self.velocity[idx]
+                else:
+                    self.not_ready.remove(idx)
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 self.lr_vector *= self.gamma
 
-        self.velocity = self.beta * self.velocity + velocity
+        self.velocity = np.maximum(self.beta * self.velocity + velocity, 0.)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
@@ -115,7 +116,7 @@ class Adas(Optimizer):
                     continue
                 d_p = p.grad.data
                 if weight_decay != 0:
-                    d_p.add_(weight_decay, p.data)
+                    d_p.add_(p.data, alpha=weight_decay)
                 if momentum != 0:
                     param_state = self.state[p]
                     if 'momentum_buffer' not in param_state:
@@ -123,7 +124,7 @@ class Adas(Optimizer):
                             d_p).detach()
                     else:
                         buf = param_state['momentum_buffer']
-                        buf.mul_(momentum).add_(1 - dampening, d_p)
+                        buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
                     if nesterov:
                         d_p = d_p.add(momentum, buf)
                     else:

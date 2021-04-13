@@ -111,6 +111,14 @@ def VBMF(Y, cacb, sigma2=None, H=None):
         else:
             lower_bound = residual/((L-H)*M)
 
+        lower_bound = lower_bound.cpu().numpy()
+        upper_bound = upper_bound.cpu().numpy()
+        if np.greater(lower_bound, upper_bound):
+            raise RuntimeError
+            return None, None, None
+            temp = lower_bound
+            lower_bound = upper_bound
+            upper_bound = temp
         sigma2_opt = minimize_scalar(VBsigma2, args=(L, M, cacb, s, residual),
                                      bounds=[lower_bound, upper_bound],
                                      method='Bounded')
@@ -279,11 +287,17 @@ def EVBMF(Y, sigma2=None, H=None):
         residual = residual*scale
         lower_bound = lower_bound*scale
         upper_bound = upper_bound*scale
-
+        lower_bound = lower_bound.cpu().numpy()
+        upper_bound = upper_bound.cpu().numpy()
+        if np.greater(lower_bound, upper_bound):
+            raise RuntimeError
+            return None, None, None
+            temp = lower_bound
+            lower_bound = upper_bound
+            upper_bound = temp
         sigma2_opt = minimize_scalar(
             EVBsigma2, args=(L, M, s.cpu().numpy(), residual, xubar),
-            bounds=[lower_bound.cpu().numpy(),
-                    upper_bound.cpu().numpy()], method='Bounded')
+            bounds=[lower_bound, upper_bound], method='Bounded')
         sigma2 = sigma2_opt.x
 
         # print(sigma2)
