@@ -19,8 +19,7 @@ class Metrics:
         mask = list()
         for param_idx, param in enumerate(params):
             param_shape = param.shape
-            # if len(param_shape) != 4 and len(param_shape) != 2:
-            if len(param_shape) != 4:
+            if len(param_shape) != 4 and len(param_shape) != 2:
                 mask.append(param_idx)
         self.mask = set(mask)
 
@@ -52,8 +51,8 @@ class Metrics:
             if isinstance(metric, ConvLayerMetrics):
                 KG_list.append((metric.input_channel.KG +
                                 metric.output_channel.KG) / 2)
-            # elif isinstance(metric, LayerMetrics):
-            #     KG_list.append(metric.KG)
+            elif isinstance(metric, LayerMetrics):
+                KG_list.append(metric.KG)
         return np.array(KG_list)
 
     def __call__(self) -> List[Tuple[int, Union[LayerMetrics,
