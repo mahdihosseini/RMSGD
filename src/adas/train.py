@@ -508,9 +508,9 @@ class TrainingAgent:
         if isinstance(self.optimizer, Adas):
             self.optimizer.epoch_step(epoch)
             self.performance_statistics[f'rank_velocity_epoch_{epoch}'] = \
-                self.optimizer.velocity[:-1]
+                self.optimizer.velocity[:len(io_metrics.output_channel_S)]
             self.performance_statistics[f'learning_rate_epoch_{epoch}'] = \
-                self.optimizer.velocity[:-1]
+                self.optimizer.velocity[:len(io_metrics.output_channel_S)]
         else:
             # if GLOBALS.CONFIG['optim_method'] == 'SLS' or \
             #         GLOBALS.CONFIG['optim_method'] == 'SPS':
