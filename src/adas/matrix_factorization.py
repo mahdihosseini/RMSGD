@@ -114,8 +114,8 @@ def VBMF(Y, cacb, sigma2=None, H=None):
         lower_bound = lower_bound.cpu().numpy()
         upper_bound = upper_bound.cpu().numpy()
         if np.greater(lower_bound, upper_bound):
-            raise RuntimeError
-            return None, None, None
+            # raise RuntimeError
+            # return None, None, None
             temp = lower_bound
             lower_bound = upper_bound
             upper_bound = temp
@@ -290,8 +290,9 @@ def EVBMF(Y, sigma2=None, H=None):
         lower_bound = lower_bound.cpu().numpy()
         upper_bound = upper_bound.cpu().numpy()
         if np.greater(lower_bound, upper_bound):
-            raise RuntimeError
-            return None, None, None
+            print("G")
+            # raise RuntimeError
+            # return None, None, None
             temp = lower_bound
             lower_bound = upper_bound
             upper_bound = temp

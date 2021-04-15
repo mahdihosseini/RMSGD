@@ -30,7 +30,9 @@ class Metrics:
             tensor = tensor.detach()
         try:
             U_approx, S_approx, V_approx = EVBMF(tensor)
+            print("NOERR")
         except RuntimeError:
+            print("RERR")
             return None, None, None
         rank = S_approx.shape[0] / normalizer
         low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
@@ -68,6 +70,7 @@ class Metrics:
                 continue
             # if np.less(np.prod(layer.shape), 10_000):
             #     metrics.append((layer_index, None))
+            print(layer.shape)
             if len(layer.shape) == 4:
                 layer_tensor = layer.data
                 tensor_size = layer_tensor.shape

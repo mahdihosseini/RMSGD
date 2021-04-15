@@ -57,19 +57,20 @@ class Adas(Optimizer):
         self.not_ready = list(range(len(self.velocity)))
         self.init_lr = lr
         self.KG = 0.
+        self.epoch = 0
 
     def __setstate__(self, state):
         super(Adas, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('nesterov', False)
 
-    def epoch_step(self, epoch: int) -> None:
+    def epoch_step(self) -> None:
         self.metrics()
-        if epoch == 0:
+        if self.epoch == 0:
             velocity = self.init_lr * np.ones(len(self.velocity))
-            self.KG = self.metrics.KG(epoch)
+            self.KG = self.metrics.KG(self.epoch)
         else:
-            KG = self.metrics.KG(epoch)
+            KG = self.metrics.KG(self.epoch)
             velocity = KG - self.KG
             self.KG = KG
             for idx in self.not_ready:
@@ -78,9 +79,9 @@ class Adas(Optimizer):
                         self.beta * self.velocity[idx]
                 else:
                     self.not_ready.remove(idx)
-
+        print(self.KG)
         if self.step_size is not None:
-            if epoch % self.step_size == 0 and epoch > 0:
+            if self.epoch % self.step_size == 0 and self.epoch > 0:
                 self.lr_vector *= self.gamma
 
         self.velocity = np.maximum(self.beta * self.velocity + velocity, 0.)
@@ -91,6 +92,7 @@ class Adas(Optimizer):
             else:
                 self.lr_vector[i] = self.velocity[count]
                 count += 1
+        self.epoch += 1
 
     def step(self, closure: callable = None):
         """Performs a single optimization step.
