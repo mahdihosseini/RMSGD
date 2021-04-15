@@ -2,10 +2,17 @@
 """
 from torch.optim.optimizer import Optimizer, required
 
+import sys
+
 import numpy as np
 import torch
 
-from .metrics import Metrics
+mod_name = vars(sys.modules[__name__])['__name__']
+
+if 'adas.' in mod_name:
+    from .metrics import Metrics
+else:
+    from optim.metrics import Metrics
 
 
 class Adas(Optimizer):
