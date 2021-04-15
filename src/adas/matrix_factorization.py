@@ -1,48 +1,21 @@
-"""
-MIT License
-
-Copyright (c) 2020 Mahdi S. Hosseini and Mathieu Tuli
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
 from __future__ import division
 
 import numpy as np
+# from scipy.sparse.linalg import svds
 from scipy.optimize import minimize_scalar
-import torch
 
 
 def VBMF(Y, cacb, sigma2=None, H=None):
-    """Implementation of the analytical solution to Variational Bayes Matrix
-        Factorization.
+    """Implementation of the analytical solution to Variational Bayes Matrix Factorization.
 
     This function can be used to calculate the analytical solution to VBMF.
     This is based on the paper and MatLab code by Nakajima et al.:
-    "Global analytic solution of fully-observed variational Bayesian matrix
-        factorization."
+    "Global analytic solution of fully-observed variational Bayesian matrix factorization."
 
     Notes
     -----
-        If sigma2 is unspecified, it is estimated by minimizing the free
-        energy.
-        If H is unspecified, it is set to the smallest of the sides of the
-        input Y.
+        If sigma2 is unspecified, it is estimated by minimizing the free energy.
+        If H is unspecified, it is set to the smallest of the sides of the input Y.
         To estimate cacb, use the function EVBMF().
 
     Attributes
@@ -51,8 +24,7 @@ def VBMF(Y, cacb, sigma2=None, H=None):
         Input matrix that is to be factorized. Y has shape (L,M), where L<=M.
 
     cacb : int
-        Product of the prior variances of the matrices that factorize the
-            input.
+        Product of the prior variances of the matrices that factorize the input.
 
     sigma2 : int or None (default=None)
         Variance of the noise on Y.
@@ -77,13 +49,9 @@ def VBMF(Y, cacb, sigma2=None, H=None):
 
     References
     ----------
-    .. [1] Nakajima, Shinichi, et al. "Global analytic solution of
-        fully-observed variational Bayesian matrix factorization." Journal of
-        Machine Learning Research 14.Jan (2013): 1-37.
+    .. [1] Nakajima, Shinichi, et al. "Global analytic solution of fully-observed variational Bayesian matrix factorization." Journal of Machine Learning Research 14.Jan (2013): 1-37.
 
-    .. [2] Nakajima, Shinichi, et al. "Perfect dimensionality recovery by
-        variational Bayesian PCA." Advances in Neural Information Processing
-        Systems. 2012.
+    .. [2] Nakajima, Shinichi, et al. "Perfect dimensionality recovery by variational Bayesian PCA." Advances in Neural Information Processing Systems. 2012.
     """
 
     L, M = Y.shape  # has to be L<=M
@@ -111,19 +79,10 @@ def VBMF(Y, cacb, sigma2=None, H=None):
         else:
             lower_bound = residual/((L-H)*M)
 
-        lower_bound = lower_bound.cpu().numpy()
-        upper_bound = upper_bound.cpu().numpy()
-        if np.greater(lower_bound, upper_bound):
-            # raise RuntimeError
-            # return None, None, None
-            temp = lower_bound
-            lower_bound = upper_bound
-            upper_bound = temp
-        sigma2_opt = minimize_scalar(VBsigma2, args=(L, M, cacb, s, residual),
-                                     bounds=[lower_bound, upper_bound],
-                                     method='Bounded')
+        sigma2_opt = minimize_scalar(VBsigma2, args=(L, M, cacb, s, residual), bounds=[
+                                     lower_bound, upper_bound], method='Bounded')
         sigma2 = sigma2_opt.x
-        # print("Estimated sigma2: ", sigma2)
+        print("Estimated sigma2: ", sigma2)
 
     # Threshold gamma term
     # Formula above (21) from [1]
@@ -135,9 +94,8 @@ def VBMF(Y, cacb, sigma2=None, H=None):
 
     # Formula (10) from [2]
     d = np.multiply(s[:pos],
-                    1 - np.multiply(
-                        sigma2/(2*s[:pos]**2),
-        L+M+np.sqrt((M-L)**2 + 4*s[:pos]**2/cacb**2)))
+                    1 - np.multiply(sigma2/(2*s[:pos]**2),
+                                    L+M+np.sqrt((M-L)**2 + 4*s[:pos]**2/cacb**2)))
 
     # Computation of the posterior
     post = {}
@@ -154,14 +112,12 @@ def VBMF(Y, cacb, sigma2=None, H=None):
     post['sa2'][:pos] = np.divide(sigma2*delta, s[:pos])
     post['sb2'][:pos] = np.divide(sigma2, np.multiply(delta, s[:pos]))
     post['sigma2'] = sigma2
-    post['F'] = 0.5*(L*M*np.log(2*np.pi*sigma2) + (
-        residual+np.sum(s**2))/sigma2 - (L+M)*H
-        + np.sum(M*np.log(cacb/post['sa2']) + L*np.log(cacb/post['sb2'])
-                 + (post['ma']**2 + M*post['sa2'])/cacb +
-                 (post['mb']**2 + L*post['sb2'])/cacb
-                 + (-2 * np.multiply(np.multiply(post['ma'], post['mb']), s)
-                    + np.multiply(post['ma']**2 + M*post['sa2'], post['mb']**2
-                                  + L*post['sb2']))/sigma2))
+    post['F'] = 0.5*(L*M*np.log(2*np.pi*sigma2) + (residual+np.sum(s**2))/sigma2 - (L+M)*H
+                     + np.sum(M*np.log(cacb/post['sa2']) + L*np.log(cacb/post['sb2'])
+                              + (post['ma']**2 + M*post['sa2'])/cacb +
+                              (post['mb']**2 + L*post['sb2'])/cacb
+                              + (-2 * np.multiply(np.multiply(post['ma'], post['mb']), s)
+                                 + np.multiply(post['ma']**2 + M*post['sa2'], post['mb']**2 + L*post['sb2']))/sigma2))
 
     return U[:, :pos], np.diag(d), V[:, :pos], post
 
@@ -174,9 +130,8 @@ def VBsigma2(sigma2, L, M, cacb, s, residual):
     pos = np.sum(s > threshold)
 
     d = np.multiply(s[:pos],
-                    1 - np.multiply(
-                        sigma2/(2*s[:pos]**2),
-        L+M+np.sqrt((M-L)**2 + 4*s[:pos]**2/cacb**2)))
+                    1 - np.multiply(sigma2/(2*s[:pos]**2),
+                                    L+M+np.sqrt((M-L)**2 + 4*s[:pos]**2/cacb**2)))
 
     zeta = sigma2/(2*L*M) * (L+M+sigma2/cacb**2 -
                              np.sqrt((L+M+sigma2/cacb**2)**2 - 4*L*M))
@@ -191,33 +146,26 @@ def VBsigma2(sigma2, L, M, cacb, s, residual):
     post_sa2[:pos] = np.divide(sigma2*delta, s[:pos])
     post_sb2[:pos] = np.divide(sigma2, np.multiply(delta, s[:pos]))
 
-    F = 0.5*(L*M*np.log(2*np.pi*sigma2) + (
-        residual+np.sum(s**2))/sigma2 - (L+M)*H
-        + np.sum(M*np.log(cacb/post_sa2) + L*np.log(cacb/post_sb2)
-                 + (post_ma**2 + M*post_sa2)/cacb +
-                 (post_mb**2 + L*post_sb2)/cacb
-                 + (-2 * np.multiply(np.multiply(post_ma, post_mb), s)
-                    + np.multiply(post_ma**2 + M*post_sa2, post_mb**2 +
-                                  L*post_sb2))/sigma2))
+    F = 0.5*(L*M*np.log(2*np.pi*sigma2) + (residual+np.sum(s**2))/sigma2 - (L+M)*H
+             + np.sum(M*np.log(cacb/post_sa2) + L*np.log(cacb/post_sb2)
+                      + (post_ma**2 + M*post_sa2)/cacb +
+                      (post_mb**2 + L*post_sb2)/cacb
+                      + (-2 * np.multiply(np.multiply(post_ma, post_mb), s)
+                         + np.multiply(post_ma**2 + M*post_sa2, post_mb**2 + L*post_sb2))/sigma2))
     return F
 
 
 def EVBMF(Y, sigma2=None, H=None):
-    """Implementation of the analytical solution to Empirical Variational
-         Bayes Matrix Factorization.
+    """Implementation of the analytical solution to Empirical Variational Bayes Matrix Factorization.
 
-    This function can be used to calculate the analytical solution to
-         empirical VBMF.
+    This function can be used to calculate the analytical solution to empirical VBMF.
     This is based on the paper and MatLab code by Nakajima et al.:
-    "Global analytic solution of fully-observed variational Bayesian matrix
-        factorization."
+    "Global analytic solution of fully-observed variational Bayesian matrix factorization."
 
     Notes
     -----
-        If sigma2 is unspecified, it is estimated by minimizing the free
-            energy.
-        If H is unspecified, it is set to the smallest of the sides of the
-            input Y.
+        If sigma2 is unspecified, it is estimated by minimizing the free energy.
+        If H is unspecified, it is set to the smallest of the sides of the input Y.
 
     Attributes
     ----------
@@ -247,13 +195,9 @@ def EVBMF(Y, sigma2=None, H=None):
 
     References
     ----------
-    .. [1] Nakajima, Shinichi, et al. "Global analytic solution of
-        fully-observed variational Bayesian matrix factorization." Journal of
-        Machine Learning Research 14.Jan (2013): 1-37.
+    .. [1] Nakajima, Shinichi, et al. "Global analytic solution of fully-observed variational Bayesian matrix factorization." Journal of Machine Learning Research 14.Jan (2013): 1-37.
 
-    .. [2] Nakajima, Shinichi, et al. "Perfect dimensionality recovery by
-        variational Bayesian PCA." Advances in Neural Information Processing
-        Systems. 2012.
+    .. [2] Nakajima, Shinichi, et al. "Perfect dimensionality recovery by variational Bayesian PCA." Advances in Neural Information Processing Systems. 2012.
     """
     L, M = Y.shape  # has to be L<=M
 
@@ -264,55 +208,63 @@ def EVBMF(Y, sigma2=None, H=None):
     tauubar = 2.5129*np.sqrt(alpha)
 
     # SVD of the input matrix, max rank of H
-    U, s, V = torch.svd(Y)
+    U, s, V = np.linalg.svd(Y)
     U = U[:, :H]
     s = s[:H]
-    V = V[:, :H]
+    V = V[:H].T
 
     # Calculate residual
     residual = 0.
     if H < L:
-        residual = torch.sum(torch.sum(Y**2) - torch.sum(s**2))
+        residual = np.sum(np.sum(Y**2)-np.sum(s**2))
 
     # Estimation of the variance when sigma2 is unspecified
     if sigma2 is None:
         xubar = (1+tauubar)*(1+alpha/tauubar)
         eH_ub = int(np.min([np.ceil(L/(1+alpha))-1, H]))-1
-        upper_bound = (torch.sum(s**2)+residual)/(L*M)
-        lower_bound = torch.max(torch.stack(
-            [s[eH_ub+1]**2/(M*xubar), torch.mean(s[eH_ub+1:]**2)/M], dim=0))
+        upper_bound = (np.sum(s**2)+residual)/(L*M)
+        lower_bound = np.max(
+            [s[eH_ub+1]**2/(M*xubar), np.mean(s[eH_ub+1:]**2)/M])
 
         scale = 1.  # /lower_bound
         s = s*np.sqrt(scale)
         residual = residual*scale
         lower_bound = lower_bound*scale
         upper_bound = upper_bound*scale
-        lower_bound = lower_bound.cpu().numpy()
-        upper_bound = upper_bound.cpu().numpy()
-        if np.greater(lower_bound, upper_bound):
-            print("G")
-            # raise RuntimeError
-            # return None, None, None
-            temp = lower_bound
-            lower_bound = upper_bound
-            upper_bound = temp
-        sigma2_opt = minimize_scalar(
-            EVBsigma2, args=(L, M, s.cpu().numpy(), residual, xubar),
-            bounds=[lower_bound, upper_bound], method='Bounded')
-        sigma2 = sigma2_opt.x
 
-        # print(sigma2)
+        sigma2_opt = minimize_scalar(EVBsigma2, args=(L, M, s, residual, xubar), bounds=[
+                                     lower_bound, upper_bound], method='Bounded')
+        sigma2 = sigma2_opt.x
 
     # Threshold gamma term
     threshold = np.sqrt(M*sigma2*(1+tauubar)*(1+alpha/tauubar))
-    pos = torch.sum(s > threshold)
+    pos = np.sum(s > threshold)
 
     # Formula (15) from [2]
-    d = (s[:pos]/2)*(1-(L+M)*sigma2/s[:pos]**2 +
-                     torch.sqrt((1 - (L+M)*sigma2/s[:pos]**2)**2 -
-                                4*L*M*sigma2**2/s[:pos]**4))
+    d = np.multiply(s[:pos]/2, 1-np.divide((L+M)*sigma2, s[:pos]**2) + np.sqrt(
+        (1-np.divide((L+M)*sigma2, s[:pos]**2))**2 - 4*L*M*sigma2**2/s[:pos]**4))
 
-    return U[:, :pos], torch.diag(d), V[:, :pos]
+    # Computation of the posterior
+    post = {}
+    post['ma'] = np.zeros(H)
+    post['mb'] = np.zeros(H)
+    post['sa2'] = np.zeros(H)
+    post['sb2'] = np.zeros(H)
+    post['cacb'] = np.zeros(H)
+
+    tau = np.multiply(d, s[:pos])/(M*sigma2)
+    delta = np.multiply(np.sqrt(np.divide(M*d, L*s[:pos])), 1+alpha/tau)
+
+    post['ma'][:pos] = np.sqrt(np.multiply(d, delta))
+    post['mb'][:pos] = np.sqrt(np.divide(d, delta))
+    post['sa2'][:pos] = np.divide(sigma2*delta, s[:pos])
+    post['sb2'][:pos] = np.divide(sigma2, np.multiply(delta, s[:pos]))
+    post['cacb'][:pos] = np.sqrt(np.multiply(d, s[:pos])/(L*M))
+    post['sigma2'] = sigma2
+    post['F'] = 0.5*(L*M*np.log(2*np.pi*sigma2) + (residual+np.sum(s**2))/sigma2
+                     + np.sum(M*np.log(tau+1) + L*np.log(tau/alpha + 1) - M*tau))
+
+    return U[:, :pos], np.diag(d), V[:, :pos], post
 
 
 def EVBsigma2(sigma2, L, M, s, residual, xubar):
@@ -340,8 +292,7 @@ def phi0(x):
 
 
 def phi1(x, alpha):
-    return np.log(tau(x, alpha)+1) + alpha*np.log(
-        tau(x, alpha)/alpha + 1) - tau(x, alpha)
+    return np.log(tau(x, alpha)+1) + alpha*np.log(tau(x, alpha)/alpha + 1) - tau(x, alpha)
 
 
 def tau(x, alpha):
