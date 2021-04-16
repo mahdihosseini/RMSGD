@@ -2,11 +2,19 @@
 """
 from typing import List, Union, Tuple
 
+import sys
+
 import numpy as np
 import torch
 
-from .components import LayerMetrics, ConvLayerMetrics
-from .matrix_factorization import EVBMF
+mod_name = vars(sys.modules[__name__])['__name__']
+
+if 'adas.' in mod_name:
+    from .components import LayerMetrics, ConvLayerMetrics
+    from .matrix_factorization import EVBMF
+else:
+    from optim.components import LayerMetrics, ConvLayerMetrics
+    from optim.matrix_factorization import EVBMF
 
 
 class Metrics:

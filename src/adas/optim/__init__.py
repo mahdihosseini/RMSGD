@@ -76,7 +76,7 @@ else:
     from optim.padam import PAdam
     from optim.radam import RAdam
     # from AdaS import AdaS
-    from adas import Adas
+    from optim.adas import Adas
     from optim.sgd import SGDVec
     from optim.adam import Adam
     from optim.sgd import SGD
