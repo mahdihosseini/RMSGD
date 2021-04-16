@@ -2,11 +2,19 @@
 """
 from typing import List, Union, Tuple
 
+import sys
+
 import numpy as np
 import torch
 
-from .components import LayerMetrics, ConvLayerMetrics
-from .matrix_factorization import EVBMF
+mod_name = vars(sys.modules[__name__])['__name__']
+
+if 'adas.' in mod_name:
+    from .components import LayerMetrics, ConvLayerMetrics
+    from .matrix_factorization import EVBMF
+else:
+    from optim.components import LayerMetrics, ConvLayerMetrics
+    from optim.matrix_factorization import EVBMF
 
 
 class Metrics:
@@ -32,10 +40,7 @@ class Metrics:
             tensor_size = tensor.shape
             if tensor_size[0] > tensor_size[1]:
                 tensor = tensor.T
-            U_approx, S_approx, V_approx, _ = EVBMF(tensor.cpu())
-            U_approx = torch.tensor(U_approx, device=tensor.device)
-            S_approx = torch.tensor(S_approx, device=tensor.device)
-            V_approx = torch.tensor(V_approx, device=tensor.device)
+            U_approx, S_approx, V_approx = EVBMF(tensor)
         except RuntimeError:
             return None, None, None
         rank = S_approx.shape[0] / normalizer
@@ -74,7 +79,6 @@ class Metrics:
                 continue
             # if np.less(np.prod(layer.shape), 10_000):
             #     metrics.append((layer_index, None))
-            print(layer.shape)
             if len(layer.shape) == 4:
                 layer_tensor = layer.data
                 tensor_size = layer_tensor.shape
