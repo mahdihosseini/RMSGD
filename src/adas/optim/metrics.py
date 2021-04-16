@@ -40,12 +40,8 @@ class Metrics:
             tensor_size = tensor.shape
             if tensor_size[0] > tensor_size[1]:
                 tensor = tensor.T
-            U_approx, S_approx, V_approx, _ = EVBMF(tensor.cpu())
-            U_approx = torch.tensor(U_approx, device=tensor.device)
-            S_approx = torch.tensor(S_approx, device=tensor.device)
-            V_approx = torch.tensor(V_approx, device=tensor.device)
+            U_approx, S_approx, V_approx = EVBMF(tensor)
         except RuntimeError:
-            print("EE")
             return None, None, None
         rank = S_approx.shape[0] / normalizer
         low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
