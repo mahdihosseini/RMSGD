@@ -109,19 +109,19 @@ def EVBMF(Y, sigma2=None, H=None):
     pos = torch.sum(s > threshold)
 
     # Formula (15) from [2]
-    d = torch.multiply(s[:pos]/2,
-                       1-torch.divide(
-                           torch.tensor((L+M)*sigma2, device=s.device),
-        s[:pos]**2) + torch.sqrt((1-torch.divide(
-            torch.tensor(
-                (L+M)*sigma2, device=s.device),
-            s[:pos]**2))**2 -
-        4*L*M*sigma2**2/s[:pos]**4))
+    # d = torch.multiply(s[:pos]/2,
+    #                    1-torch.divide(
+    #                        torch.tensor((L+M)*sigma2, device=s.device),
+    #     s[:pos]**2) + torch.sqrt((1-torch.divide(
+    #         torch.tensor(
+    #             (L+M)*sigma2, device=s.device),
+    #         s[:pos]**2))**2 -
+    #     4*L*M*sigma2**2/s[:pos]**4))
     # d = np.multiply(s[:pos]/2, 1-np.divide((L+M)*sigma2, s[:pos]**2) + np.sqrt(
     #     (1-np.divide((L+M)*sigma2, s[:pos]**2))**2 - 4*L*M*sigma2**2/s[:pos]**4))
-    # d = (s[:pos]/2)*(1-(L+M)*sigma2/s[:pos]**2 +
-    #                  torch.sqrt((1 -
-    #                              (L+M)*sigma2/s[:pos]**2)**2 - 4*L*M*sigma2**2/s[:pos]**4))
+    d = (s[:pos]/2)*(1-(L+M)*sigma2/s[:pos]**2 +
+                     torch.sqrt((1 -
+                                 (L+M)*sigma2/s[:pos]**2)**2 - 4*L*M*sigma2**2/s[:pos]**4))
 
     # Computation of the posterior
     # post = {}

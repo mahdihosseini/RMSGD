@@ -26,6 +26,7 @@ class Adas(Optimizer):
                  lr: float = required,
                  beta: float = 0.8,
                  step_size: int = None,
+                 linear: bool = False,
                  gamma: float = 1,
                  momentum: float = 0,
                  dampening: float = 0,
@@ -57,12 +58,13 @@ class Adas(Optimizer):
         self.step_size = step_size
         self.gamma = gamma
         self.beta = beta
-        self.metrics = metrics = Metrics(params=listed_params)
+        self.metrics = metrics = Metrics(params=listed_params, linear=linear)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
         self.velocity = np.zeros(
             len(self.metrics.params) - len(self.metrics.mask))
         self.not_ready = list(range(len(self.velocity)))
         self.init_lr = lr
+        self.zeta = 1.
         self.KG = 0.
 
     def __setstate__(self, state):
@@ -80,7 +82,7 @@ class Adas(Optimizer):
             velocity = KG - self.KG
             self.KG = KG
             for idx in self.not_ready:
-                if np.isclose(velocity[idx], 0.):
+                if np.isclose(KG[idx], 0.):
                     velocity[idx] = self.init_lr - \
                         self.beta * self.velocity[idx]
                 else:
@@ -89,8 +91,10 @@ class Adas(Optimizer):
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 self.lr_vector *= self.gamma
+                self.zeta *= self.gamma
 
-        self.velocity = np.maximum(self.beta * self.velocity + velocity, 0.)
+        self.velocity = np.maximum(
+            self.beta * self.velocity + self.zeta * velocity, 0.)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
