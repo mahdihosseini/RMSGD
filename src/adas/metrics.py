@@ -18,7 +18,7 @@ else:
 
 
 class Metrics:
-    def __init__(self, params) -> None:
+    def __init__(self, params, linear: bool = False) -> None:
         '''
         parameters: list of torch.nn.Module.parameters()
         '''
@@ -27,8 +27,12 @@ class Metrics:
         mask = list()
         for param_idx, param in enumerate(params):
             param_shape = param.shape
-            if len(param_shape) != 4 and len(param_shape) != 2:
-                mask.append(param_idx)
+            if not linear:
+                if len(param_shape) != 4:
+                    mask.append(param_idx)
+            else:
+                if len(param_shape) != 4 and len(param_shape) != 2:
+                    mask.append(param_idx)
         self.mask = set(mask)
 
     def compute_low_rank(self,
@@ -43,7 +47,7 @@ class Metrics:
             U_approx, S_approx, V_approx = EVBMF(tensor)
         except RuntimeError:
             return None, None, None
-        rank = S_approx.shape[0] / normalizer
+        rank = S_approx.shape[0] / tensor_size[0]  # normalizer
         low_rank_eigen = torch.diag(S_approx).data.cpu().numpy()
         if len(low_rank_eigen) != 0:
             condition = low_rank_eigen[0] / low_rank_eigen[-1]
@@ -53,7 +57,7 @@ class Metrics:
         else:
             condition = 0
             sum_low_rank_eigen = 0
-        KG = sum_low_rank_eigen / normalizer
+        KG = sum_low_rank_eigen / tensor_size[0]  # normalizer
         return rank, KG, condition
 
     def KG(self, epoch: int) -> np.ndarray:

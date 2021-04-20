@@ -2,10 +2,17 @@
 """
 from torch.optim.optimizer import Optimizer, required
 
+import sys
+
 import numpy as np
 import torch
 
-from .metrics import Metrics
+mod_name = vars(sys.modules[__name__])['__name__']
+
+if 'adas.' in mod_name:
+    from .metrics import Metrics
+else:
+    from optim.metrics import Metrics
 
 
 class Adas(Optimizer):
@@ -19,6 +26,7 @@ class Adas(Optimizer):
                  lr: float = required,
                  beta: float = 0.8,
                  step_size: int = None,
+                 linear: bool = False,
                  gamma: float = 1,
                  momentum: float = 0,
                  dampening: float = 0,
@@ -50,41 +58,43 @@ class Adas(Optimizer):
         self.step_size = step_size
         self.gamma = gamma
         self.beta = beta
-        self.metrics = metrics = Metrics(params=listed_params)
+        self.metrics = metrics = Metrics(params=listed_params, linear=linear)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
         self.velocity = np.zeros(
             len(self.metrics.params) - len(self.metrics.mask))
         self.not_ready = list(range(len(self.velocity)))
         self.init_lr = lr
+        self.zeta = 1.
         self.KG = 0.
-        self.epoch = 0
 
     def __setstate__(self, state):
         super(Adas, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('nesterov', False)
 
-    def epoch_step(self) -> None:
+    def epoch_step(self, epoch: int) -> None:
         self.metrics()
-        if self.epoch == 0:
+        if epoch == 0:
             velocity = self.init_lr * np.ones(len(self.velocity))
-            self.KG = self.metrics.KG(self.epoch)
+            self.KG = self.metrics.KG(epoch)
         else:
-            KG = self.metrics.KG(self.epoch)
+            KG = self.metrics.KG(epoch)
             velocity = KG - self.KG
             self.KG = KG
             for idx in self.not_ready:
-                if np.isclose(velocity[idx], 0.):
+                if np.isclose(KG[idx], 0.):
                     velocity[idx] = self.init_lr - \
                         self.beta * self.velocity[idx]
                 else:
                     self.not_ready.remove(idx)
-        print(self.KG)
-        if self.step_size is not None:
-            if self.epoch % self.step_size == 0 and self.epoch > 0:
-                self.lr_vector *= self.gamma
 
-        self.velocity = np.maximum(self.beta * self.velocity + velocity, 0.)
+        if self.step_size is not None:
+            if epoch % self.step_size == 0 and epoch > 0:
+                self.lr_vector *= self.gamma
+                self.zeta *= self.gamma
+
+        self.velocity = np.maximum(
+            self.beta * self.velocity + self.zeta * velocity, 0.)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
@@ -92,7 +102,6 @@ class Adas(Optimizer):
             else:
                 self.lr_vector[i] = self.velocity[count]
                 count += 1
-        self.epoch += 1
 
     def step(self, closure: callable = None):
         """Performs a single optimization step.
