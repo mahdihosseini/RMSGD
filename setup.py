@@ -9,7 +9,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     url='https://github.com/mahdihosseini/AdaS',
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     install_requires=[
         "numpy>=1.20.2",
         "scipy>=1.6.2",
