@@ -87,8 +87,7 @@ The use Adas, simply import the `Adas(torch.optim.optimier.Optimizer)` class and
 ```Python
 from adas import Adas
 
-optimizer = Adas(params=model.parameters(),
-                 listed_params=list(model.parameters()),
+optimizer = Adas(params=list(model.parameters()),
                  lr: float = ???,
                  beta: float = 0.8
                  step_size: int = None,

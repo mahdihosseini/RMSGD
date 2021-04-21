@@ -22,7 +22,6 @@ class Adas(Optimizer):
 
     def __init__(self,
                  params,
-                 listed_params,
                  lr: float = required,
                  beta: float = 0.8,
                  step_size: int = None,
@@ -58,7 +57,7 @@ class Adas(Optimizer):
         self.step_size = step_size
         self.gamma = gamma
         self.beta = beta
-        self.metrics = metrics = Metrics(params=listed_params, linear=linear)
+        self.metrics = metrics = Metrics(params=params, linear=linear)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
         self.velocity = np.zeros(
             len(self.metrics.params) - len(self.metrics.mask))
