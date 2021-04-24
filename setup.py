@@ -8,7 +8,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
-    url='https://github.com/mahdihosseini/AdaS',
+    # url='https://github.com/mahdihosseini/AdaS',
     python_requires='>=3.6',
     install_requires=[
         "numpy>=1.20.2",
