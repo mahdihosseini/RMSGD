@@ -82,7 +82,8 @@ class Adas(Optimizer):
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
-                self.lr_vector *= self.gamma
+                # self.lr_vector *= self.gamma
+                # self.velocity *= self.gamma
                 self.zeta *= self.gamma
 
         self.velocity = np.maximum(
