@@ -35,10 +35,12 @@ class Adas(Optimizer):
         all_params = None
         if params_dict:
             found = False
-            for d in params:
+            for i, d in enumerate(params):
                 if "all_params" in d.keys():
                     all_params = d["all_params"]
+                    del params[i]
                     found = True
+                    break
             if not found:
                 raise ValueError(
                     "If passing in a list of dictionaries for " +
