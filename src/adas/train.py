@@ -504,20 +504,53 @@ class TrainingAgent:
 
         self.performance_statistics[f'out_condition_epoch_{epoch}'] = \
             io_metrics.output_channel_condition
+        for k, v in self.performance_statistics.items():
+            try:
+                print(k, len(v))
+            except Exception:
+                pass
         # if GLOBALS.ADAS is not None:
         if isinstance(self.optimizer, Adas):
             self.optimizer.epoch_step(epoch)
+            kg = self.optimizer.KG
+            new_kg = list()
+            new_lr_vec = list()
+            count = 0
+            for idx, param in enumerate(self.optimizer.metrics.params):
+                if len(param.shape) == 4:
+                    if idx in self.optimizer.metrics.velocity_indexes:
+                        new_kg.append(kg[min(len(kg)-1, count)])
+                    else:
+                        new_kg.append(kg[count])
+                        count += 1
+                    new_lr_vec.append(self.optimizer.lr_vector[idx])
             self.performance_statistics[f'rank_velocity_epoch_{epoch}'] = \
-                self.optimizer.velocity[:len(io_metrics.output_channel_S)]
+                new_kg
             self.performance_statistics[f'learning_rate_epoch_{epoch}'] = \
-                self.optimizer.velocity[:len(io_metrics.output_channel_S)]
+                new_lr_vec
         else:
             # if GLOBALS.CONFIG['optim_method'] == 'SLS' or \
             #         GLOBALS.CONFIG['optim_method'] == 'SPS':
             if isinstance(self.optimizer, SLS) or isinstance(
                     self.optimizer, SPS) or isinstance(self.optimizer, AdaSLS):
-                self.performance_statistics[f'learning_rate_epoch_{epoch}'] = \
+                self.performance_statistics[f'aearning_rate_epoch_{epoch}'] = \
                     self.optimizer.state['step_size']
+            # elif isinstance(self.optimizer, Adas):
+            #     lr_vec = self.optimizer.param_groups[0]['lr']
+            #     new_lr_vec = list()
+            #     count = 0
+            #     for idx, param in enumerate(self.optimizer.metrics.params):
+            #         if len(param.shape) == 4:
+            #             if idx in self.optimizer.metrics.velocity_indexes:
+            #                 new_lr_vec.append(lr_vec[count])
+            #             else:
+            #                 new_lr_vec.append(lr_vec[count])
+            #                 count += 1
+            #     print('lr', len(new_lr_vec))
+            #     self.performance_statistics[
+            #         f'learning_rate_epoch_{epoch}'] = \
+            #         new_lr_vec
+
             else:
                 self.performance_statistics[
                     f'learning_rate_epoch_{epoch}'] = \

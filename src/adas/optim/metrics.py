@@ -25,15 +25,23 @@ class Metrics:
         self.params = params
         self.history = list()
         mask = list()
+        self.velocity_indexes = list()
         for param_idx, param in enumerate(params):
             param_shape = param.shape
             if not linear:
                 if len(param_shape) != 4:
                     mask.append(param_idx)
+                elif len(param_shape) == 4 and (param_shape[2] == 1 or param_shape[3] == 1):
+                    mask.append(param_idx)
+                    self.velocity_indexes.append(param_idx)
             else:
                 if len(param_shape) != 4 and len(param_shape) != 2:
                     mask.append(param_idx)
+                elif len(param_shape) == 4 and (param_shape[2] == 1 or param_shape[3] == 1):
+                    mask.append(param_idx)
+                    self.velocity_indexes.append(param_idx)
         self.mask = set(mask)
+        self.velocity_indexes = set(self.velocity_indexes)
 
     def compute_low_rank(self,
                          tensor: torch.Tensor,

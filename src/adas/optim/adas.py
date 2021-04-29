@@ -94,7 +94,7 @@ class Adas(Optimizer):
                 self.zeta *= self.gamma
 
         self.velocity = np.maximum(
-            self.beta * self.velocity + self.zeta * velocity, 0.)
+            self.beta * self.velocity + self.zeta * velocity, 1e-10)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
