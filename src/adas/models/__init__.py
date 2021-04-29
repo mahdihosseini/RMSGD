@@ -35,6 +35,8 @@ if 'adas.' in mod_name:
         mnasnet0_75 as MNASNet_0_75, mnasnet1_0 as MNASNet_1,\
         mnasnet1_3 as MNASNet_1_3
     from .mobilenet import mobilenet_v2 as MobileNetV2
+    from .mobilenet_cifar import MobileNetV2 as MobileNetV2CIFAR
+    from .senet import SENet18 as SENet18CIFAR
     from .resnet import resnet18 as ResNet18, resnet34 as ResNet34, \
         resnet50 as ResNet50, resnet101 as ResNet101, resnet152 as ResNet152, \
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
@@ -66,6 +68,8 @@ else:
         mnasnet0_75 as MNASNet_0_75, mnasnet1_0 as MNASNet_1,\
         mnasnet1_3 as MNASNet_1_3
     from models.mobilenet import mobilenet_v2 as MobileNetV2
+    from models.mobilenet_cifar import MobileNetV2 as MobileNetV2CIFAR
+    from models.senet import SENet18 as SENet18CIFAR
     from models.resnet import resnet18 as ResNet18, resnet34 as ResNet34, \
         resnet50 as ResNet50, resnet101 as ResNet101, resnet152 as ResNet152, \
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
@@ -116,6 +120,10 @@ def get_network(name: str, num_classes: int) -> None:
             num_classes=num_classes) if name == 'MNASNet_1_3' else\
         MobileNetV2(
             num_classes=num_classes) if name == 'MobileNetV2' else\
+        MobileNetV2CIFAR(
+            num_classes=num_classes) if name == 'MobileNetV2CIFAR' else\
+        SENet18CIFAR(
+            num_classes=num_classes) if name == 'SENet18CIFAR' else\
         ResNet18(
             num_classes=num_classes) if name == 'ResNet18' else\
         ResNet34(
