@@ -37,6 +37,7 @@ if 'adas.' in mod_name:
     from .mobilenet import mobilenet_v2 as MobileNetV2
     from .mobilenet_cifar import MobileNetV2 as MobileNetV2CIFAR
     from .senet import SENet18 as SENet18CIFAR
+    from .shufflenetv2_cifar import ShuffleNetV2 as ShuffleNetV2CIFAR
     from .resnet import resnet18 as ResNet18, resnet34 as ResNet34, \
         resnet50 as ResNet50, resnet101 as ResNet101, resnet152 as ResNet152, \
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
@@ -70,6 +71,7 @@ else:
     from models.mobilenet import mobilenet_v2 as MobileNetV2
     from models.mobilenet_cifar import MobileNetV2 as MobileNetV2CIFAR
     from models.senet import SENet18 as SENet18CIFAR
+    from models.shufflenetv2_cifar import ShuffleNetV2 as ShuffleNetV2CIFAR
     from models.resnet import resnet18 as ResNet18, resnet34 as ResNet34, \
         resnet50 as ResNet50, resnet101 as ResNet101, resnet152 as ResNet152, \
         resnext50_32x4d as ResNeXt50, resnext101_32x8d as ResNeXt101, \
@@ -124,6 +126,8 @@ def get_network(name: str, num_classes: int) -> None:
             num_classes=num_classes) if name == 'MobileNetV2CIFAR' else\
         SENet18CIFAR(
             num_classes=num_classes) if name == 'SENet18CIFAR' else\
+        ShuffleNetV2CIFAR(
+            net_size=1.5, num_classes=num_classes) if name == 'ShuffleNetV2CIFAR' else\
         ResNet18(
             num_classes=num_classes) if name == 'ResNet18' else\
         ResNet34(
