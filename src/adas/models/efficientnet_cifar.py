@@ -154,7 +154,7 @@ class EfficientNet(nn.Module):
         return out
 
 
-def EfficientNet(model_name, num_classes: int = 10):
+def EfficientNetBuild(model_name, num_classes: int = 10):
     if model_name == 'efficientnet-b0':
         cfg = {
             'num_blocks': [1, 2, 2, 3, 3, 4, 1],

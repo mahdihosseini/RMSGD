@@ -56,7 +56,7 @@ if 'adas.' in mod_name:
         vgg16_bn as VGG16_BN, vgg19 as VGG19, vgg19_bn as VGG19_BN
     from .vgg_cifar import VGG as VGGCIFAR
     from .efficientnet.efficientnet import EfficientNet
-    from .efficientnet_cifar import EfficientNet as EfficientNetCIFAR
+    from .efficientnet_cifar import EfficientNetBuild as EfficientNetCIFAR
     from .densenet_cifar import densenet_cifar as DenseNet121CIFAR
 else:
     from models.alexnet import alexnet as AlexNet
@@ -90,7 +90,7 @@ else:
         vgg16_bn as VGG16_BN, vgg19 as VGG19, vgg19_bn as VGG19_BN
     from models.vgg_cifar import VGG as VGGCIFAR
     from models.efficientnet.efficientnet import EfficientNet
-    from models.efficientnet_cifar import EfficientNet as EfficientNetCIFAR
+    from models.efficientnet_cifar import EfficientNetBuild as EfficientNetCIFAR
     from models.densenet_cifar import densenet_cifar as DenseNet121CIFAR
 
 
