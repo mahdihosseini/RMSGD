@@ -27,7 +27,7 @@ if 'adas.' in mod_name:
         calculate_output_image_size
     )
 else:
-    from model.efficientnet.utils import (
+    from models.efficientnet.utils import (
         round_filters,
         round_repeats,
         drop_connect,
