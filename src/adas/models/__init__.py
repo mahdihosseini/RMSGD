@@ -55,8 +55,8 @@ if 'adas.' in mod_name:
         vgg13 as VGG13, vgg13_bn as VGG13_BN, vgg16 as VGG16, \
         vgg16_bn as VGG16_BN, vgg19 as VGG19, vgg19_bn as VGG19_BN
     from .vgg_cifar import VGG as VGGCIFAR
-    from .efficientnet import efficientnet_b4 as EfficientNetB4
-    from .efficientnet_cifar import EfficientNetB0 as EfficientNetB0CIFAR
+    from .efficientnet.efficientnet import EfficientNet
+    from .efficientnet_cifar import EfficientNet as EfficientNetCIFAR
     from .densenet_cifar import densenet_cifar as DenseNet121CIFAR
 else:
     from models.alexnet import alexnet as AlexNet
@@ -89,8 +89,8 @@ else:
         vgg13 as VGG13, vgg13_bn as VGG13_BN, vgg16 as VGG16, \
         vgg16_bn as VGG16_BN, vgg19 as VGG19, vgg19_bn as VGG19_BN
     from models.vgg_cifar import VGG as VGGCIFAR
-    from models.efficientnet import efficientnet_b4 as EfficientNetB4
-    from models.efficientnet_cifar import EfficientNetB0 as EfficientNetB0CIFAR
+    from models.efficientnet.efficientnet import EfficientNet
+    from models.efficientnet_cifar import EfficientNet as EfficientNetCIFAR
     from models.densenet_cifar import densenet_cifar as DenseNet121CIFAR
 
 
@@ -186,8 +186,12 @@ def get_network(name: str, num_classes: int) -> None:
             num_classes=num_classes) if name == 'VGG19_BN' else \
         VGGCIFAR('VGG16',
                  num_classes=num_classes) if name == 'VGG16CIFAR' else \
-        EfficientNetB4(
-            num_classes=num_classes) if name == 'EfficientNetB4' else \
-        EfficientNetB0CIFAR(
-            num_classes=num_classes) if name == 'EfficientNetB0CIFAR' else\
+        EfficientNet.from_name(model_name='-'.join(['b' + s.lower() for s in
+                                                    name.split('B') if s])[1:],
+                               num_classes=num_classes) if 'EfficientNet' in name and \
+        'CIFAR' not in name else \
+        EfficientNetCIFAR(model_name='-'.join(['b' + s.lower() for s in
+                                               name.replace("CIFAR", "").split('B') if s])[1:],
+                          num_classes=num_classes) if 'EfficientNet' in \
+        name and 'CIFAR' in name else \
         None

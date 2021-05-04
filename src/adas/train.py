@@ -504,11 +504,11 @@ class TrainingAgent:
 
         self.performance_statistics[f'out_condition_epoch_{epoch}'] = \
             io_metrics.output_channel_condition
-        for k, v in self.performance_statistics.items():
-            try:
-                print(k, len(v))
-            except Exception:
-                pass
+        # for k, v in self.performance_statistics.items():
+        #     try:
+        #         print(k, len(v))
+        #     except Exception:
+        #         pass
         # if GLOBALS.ADAS is not None:
         if isinstance(self.optimizer, Adas):
             self.optimizer.epoch_step(epoch)

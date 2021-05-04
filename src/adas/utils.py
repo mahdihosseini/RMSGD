@@ -94,17 +94,27 @@ def parse_config(
         raise ValueError(
             f"config.yaml: unknown dataset {config['dataset']}. " +
             f"Must be one of {valid_dataset}")
-    valid_models = [
+    valid_models = {
         'AlexNet', ', DenseNet201', 'DenseNet169', 'DenseNet161',
         'DenseNet121', 'GoogLeNet', 'InceptionV3', 'MNASNet_0_5',
-        'MNASNet_0_75', 'MNASNet_1', 'MNASNet_1_3', 'MobileNetV2', 'MobileNetV2CIFAR', 'SENet18CIFAR', 'ShuffleNetV2CIFAR',
-        'ResNet18', 'ResNet34', 'ResNet34CIFAR', 'ResNet50', 'ResNet50CIFAR', 'ResNet101', 'ResNet101CIFAR', 'ResNet152',
-        'ResNext50', 'ResNext101', 'ResNeXtCIFAR', 'WideResNet50', 'WideResNet101',
+        'MNASNet_0_75', 'MNASNet_1', 'MNASNet_1_3', 'MobileNetV2',
+        'MobileNetV2CIFAR', 'SENet18CIFAR', 'ShuffleNetV2CIFAR',
+        'ResNet18', 'ResNet34', 'ResNet34CIFAR', 'ResNet50', 'ResNet50CIFAR',
+        'ResNet101', 'ResNet101CIFAR', 'ResNet152',
+        'ResNext50', 'ResNext101', 'ResNeXtCIFAR', 'WideResNet50',
+        'WideResNet101',
         'ShuffleNetV2_0_5', 'ShuffleNetV2_1', 'ShuffleNetV2_1_5',
         'ShuffleNetV2_2', 'SqueezeNet_1', 'SqueezeNet_1_1', 'VGG11',
         'VGG11_BN', 'VGG13', 'VGG13_BN', 'VGG16', 'VGG16_BN', 'VGG19',
         'VGG19_BN', 'EfficientNetB4', 'EfficientNetB0CIFAR', 'VGG16CIFAR',
-        'DenseNet121CIFAR', 'ResNet18CIFAR']
+        'DenseNet121CIFAR', 'ResNet18CIFAR',
+        'EfficientNetB0', 'EfficientNetB1', 'EfficientNetB2',
+        'EfficientNetB3', 'EfficientNetB4', 'EfficientNetB5',
+        'EfficientNetB6', 'EfficientNetB7', 'EfficientNetB8',
+        'EfficientNetB0CIFAR', 'EfficientNetB1CIFAR', 'EfficientNetB2CIFAR',
+        'EfficientNetB3CIFAR', 'EfficientNetB4CIFAR', 'EfficientNetB5CIFAR',
+        'EfficientNetB6CIFAR', 'EfficientNetB7CIFAR', 'EfficientNetB8CIFAR',
+    }
     if config['network'] not in valid_models:
         raise ValueError(
             f"config.yaml: unknown model {config['network']}." +
