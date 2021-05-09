@@ -47,12 +47,9 @@ class Adas(Optimizer):
                     "parameters, ensure one element in list has " +
                     "'all_params' with 'list(model.parameters())' as "
                     + "its value")
-        defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
-                        weight_decay=weight_decay, nesterov=nesterov)
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
-        super(Adas, self).__init__(params, defaults)
 
         # Adas Specific stuff (not SGD)
         if np.less(beta, 0) or np.greater_equal(beta, 1):
@@ -75,11 +72,14 @@ class Adas(Optimizer):
         self.init_lr = lr
         self.zeta = 1.
         self.KG = 0.
-
-    def __setstate__(self, state):
-        super(Adas, self).__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault('nesterov', False)
+        defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
+                        weight_decay=weight_decay, nesterov=nesterov,
+                        KG=self.KG, step_size=step_size, gamma=gamma,
+                        beta=beta, metrics=self.metrics,
+                        lr_vector=self.lr_vector,
+                        velocity=self.velocity, not_ready=self.not_ready,
+                        init_lr=self.init_lr, zeta=self.zeta)
+        super(Adas, self).__init__(params, defaults)
 
     def epoch_step(self, epoch: int) -> None:
         self.metrics()
