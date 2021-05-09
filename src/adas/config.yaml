@@ -1,6 +1,6 @@
 ###### Application Specific ######
-dataset: 'CIFAR100' # options: CIFAR100, CIFAR10, ImageNet
-network: 'EfficientNetB0' # AlexNet, DenseNet201, DenseNet169, DenseNet161, DenseNet121, GoogLeNet
+dataset: 'MHIST' # options: CIFAR100, CIFAR10, ImageNet
+network: 'ResNet34CIFAR' # AlexNet, DenseNet201, DenseNet169, DenseNet161, DenseNet121, GoogLeNet
 # InceptionV3, MNASNet_0_5, MNASNet_0_75, MNASNet_1, MNASNet_1_3, MobileNetV2, ResNet18
 # ResNet34, ResNet50, ResNet101, ResNet152, ResNext50, ResNext101, WideResNet50, WideResNet101
 # ShuffleNetV2_0_5, ShuffleNetV2_1, ShuffleNetV2_1_5, ShuffleNetV2_2, SqueezeNet_1,
@@ -31,6 +31,6 @@ p: 1 # options: 1, 2.
 n_trials: 1
 num_workers: 4
 max_epochs: 250
-mini_batch_size: 128
+mini_batch_size: 8
 loss: 'cross_entropy' # options: cross_entropy
 early_stop_patience: 10 # epoch window to consider when deciding whether to stop

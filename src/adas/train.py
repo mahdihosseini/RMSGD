@@ -474,7 +474,8 @@ class TrainingAgent:
             # _, predicted = outputs.max(1)
             # total += targets.size(0)
             # correct += predicted.eq(targets).sum().item()
-            acc1, acc5 = accuracy(outputs, targets, (1, 5))
+            acc1, acc5 = accuracy(
+                outputs, targets, (1, min(self.num_classes, 5)))
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
             if isinstance(self.scheduler, OneCycleLR):
@@ -579,7 +580,8 @@ class TrainingAgent:
                 # _, predicted = outputs.max(1)
                 # total += targets.size(0)
                 # correct += predicted.eq(targets).sum().item()
-                acc1, acc5 = accuracy(outputs, targets, topk=(1, 5))
+                acc1, acc5 = accuracy(outputs, targets, topk=(
+                    1, min(self.num_classes, 5)))
                 top1.update(acc1[0], inputs.size(0))
                 top5.update(acc5[0], inputs.size(0))
 

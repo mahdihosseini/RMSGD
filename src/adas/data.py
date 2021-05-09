@@ -33,9 +33,9 @@ import torch
 mod_name = vars(sys.modules[__name__])['__name__']
 
 if 'adas.' in mod_name:
-    from .datasets import ImageNet, TinyImageNet
+    from .datasets import ImageNet, TinyImageNet, MHIST
 else:
-    from datasets import ImageNet, TinyImageNet
+    from datasets import ImageNet, TinyImageNet, MHIST
 # from .folder2lmdb import ImageFolderLMDB
 
 
@@ -93,7 +93,80 @@ def get_data(
         n_holes: int = -1,
         length: int = -1,
         dist: bool = False) -> None:
-    if name == 'CIFAR100':
+    if name == 'MHIST':
+        num_classes = 2
+        transform_train = transforms.Compose([
+            transforms.RandomCrop(224, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[x / 255.0 for x in [188.14, 165.39, 192.69]], std=[
+                    x / 255.0 for x in [50.30, 62.13, 43.42]]),
+        ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
+
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[x / 255.0 for x in [188.14, 165.39, 192.69]], std=[
+                    x / 255.0 for x in [50.30, 62.13, 43.42]]),
+        ])
+        trainset = MHIST(
+            root=str(root), split='train',
+            transform=transform_train)
+        train_sampler = \
+            torch.utils.data.distributed.DistributedSampler(
+                trainset) if dist else None
+        train_loader = torch.utils.data.DataLoader(
+            trainset, batch_size=mini_batch_size,
+            shuffle=(train_sampler is None),
+            num_workers=num_workers, pin_memory=True,
+            sampler=train_sampler)
+        testset = MHIST(
+            root=str(root), split='test',
+            transform=transform_test)
+        test_loader = torch.utils.data.DataLoader(
+            testset, batch_size=mini_batch_size, shuffle=False,
+            num_workers=num_workers, pin_memory=True)
+    elif name == 'CIFAR10':
+        num_classes = 10
+        transform_train = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465),
+                                 (0.2023, 0.1994, 0.2010)),
+        ])
+        if cutout:
+            transform_train.transforms.append(
+                Cutout(n_holes=n_holes, length=length))
+
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465),
+                                 (0.2023, 0.1994, 0.2010)),
+        ])
+        trainset = torchvision.datasets.CIFAR10(
+            root=str(root), train=True, download=True,
+            transform=transform_train)
+        train_sampler = \
+            torch.utils.data.distributed.DistributedSampler(
+                trainset) if dist else None
+        train_loader = torch.utils.data.DataLoader(
+            trainset, batch_size=mini_batch_size,
+            shuffle=(train_sampler is None),
+            num_workers=num_workers, pin_memory=True,
+            sampler=train_sampler)
+
+        testset = torchvision.datasets.CIFAR10(
+            root=str(root), train=False,
+            download=True, transform=transform_test)
+        test_loader = torch.utils.data.DataLoader(
+            testset, batch_size=mini_batch_size, shuffle=False,
+            num_workers=num_workers, pin_memory=True)
+    elif name == 'CIFAR100':
         num_classes = 100
         transform_train = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
