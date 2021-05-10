@@ -590,7 +590,7 @@ class TrainingAgent:
                 outputs = self.network(inputs)
                 if self.num_classes == 2:
                     tgts.extend(targets.tolist())
-                    preds.extend(outputs.tolist())
+                    preds.extend(outputs[:, 1].tolist())
                 loss = self.criterion(outputs, targets)
                 test_loss += loss.item()
                 # _, predicted = outputs.max(1)
