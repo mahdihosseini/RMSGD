@@ -521,7 +521,9 @@ class TrainingAgent:
         if self.num_classes == 2:
             fpr, tpr, thresholds = metrics.roc_curve(
                 tgts, preds, pos_label=1)
-            print("Train AUC:", metrics.auc(fpr, tpr))
+            auc = metrics.auc(fpr, tpr)
+            print("Train AUC:", auc)
+            self.performance_statistics[f'train_auc_epoch_{epoch}'] = auc
         if isinstance(self.optimizer, Adas):
             self.optimizer.epoch_step(epoch)
             kg = self.optimizer.KG
@@ -605,7 +607,9 @@ class TrainingAgent:
         if self.num_classes == 2:
             fpr, tpr, thresholds = metrics.roc_curve(
                 tgts, preds, pos_label=1)
-            print("Valid AUC:", metrics.auc(fpr, tpr))
+            auc = metrics.auc(fpr, tpr)
+            print("Valid AUC:", auc)
+            self.performance_statistics[f'test_auc_epoch_{epoch}'] = auc
         # Save checkpoint.
         # acc = 100. * correct / total
         # if acc > self.best_acc:
