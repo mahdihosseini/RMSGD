@@ -650,7 +650,7 @@ class AverageMeter:
 
 
 def accuracy(outputs, targets, topk=(1,), aoc: bool = False):
-    if aoc:
+    if aoc and False:
         return [[0], [0]]
         targets = targets.detach().cpu().numpy()
         outputs = outputs.detach().cpu().numpy()
