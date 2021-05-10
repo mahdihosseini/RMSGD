@@ -35,6 +35,7 @@ import sys
 import torch.backends.cudnn as cudnn
 import torch.multiprocessing as mp
 import torch.distributed as dist
+from sklearn import metrics
 import pandas as pd
 import numpy as np
 import torch
@@ -475,7 +476,8 @@ class TrainingAgent:
             # total += targets.size(0)
             # correct += predicted.eq(targets).sum().item()
             acc1, acc5 = accuracy(
-                outputs, targets, (1, min(self.num_classes, 5)))
+                outputs, targets, (1, min(self.num_classes, 5)),
+                aoc=self.num_classes == 2)
             top1.update(acc1[0], inputs.size(0))
             top5.update(acc5[0], inputs.size(0))
             if isinstance(self.scheduler, OneCycleLR):
@@ -581,7 +583,8 @@ class TrainingAgent:
                 # total += targets.size(0)
                 # correct += predicted.eq(targets).sum().item()
                 acc1, acc5 = accuracy(outputs, targets, topk=(
-                    1, min(self.num_classes, 5)))
+                    1, min(self.num_classes, 5)),
+                    aoc=self.num_classes == 2)
                 top1.update(acc1[0], inputs.size(0))
                 top5.update(acc5[0], inputs.size(0))
 
@@ -628,21 +631,28 @@ class AverageMeter:
         self.avg = self.sum / self.count
 
 
-def accuracy(outputs, targets, topk=(1,)):
-    with torch.no_grad():
-        maxk = max(topk)
-        batch_size = targets.size(0)
+def accuracy(outputs, targets, topk=(1,), aoc: bool = False):
+    if aoc:
+        targets = targets.detach().cpu()
+        outputs = outputs.detach().cpu()
+        fpr, tpr, thresholds = metrics.roc_curve(
+            targets, outputs[:, 1], pos_label=1)
+        return [[metrics.auc(fpr, tpr)], [0.0]]
+    else:
+        with torch.no_grad():
+            maxk = max(topk)
+            batch_size = targets.size(0)
 
-        _, pred = outputs.topk(maxk, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(targets.contiguous().view(1, -1).expand_as(pred))
+            _, pred = outputs.topk(maxk, 1, True, True)
+            pred = pred.t()
+            correct = pred.eq(targets.contiguous().view(1, -1).expand_as(pred))
 
-        res = []
-        for k in topk:
-            correct_k = correct[:k].contiguous(
-            ).view(-1).float().sum(0, keepdim=True)
-            res.append(correct_k.mul_(100.0 / batch_size))
-        return res
+            res = []
+            for k in topk:
+                correct_k = correct[:k].contiguous(
+                ).view(-1).float().sum(0, keepdim=True)
+                res.append(correct_k.mul_(100.0 / batch_size))
+            return res
 
 
 def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
