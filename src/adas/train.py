@@ -427,6 +427,8 @@ class TrainingAgent:
         # total = 0
 
         """train CNN architecture"""
+        tgts = list()
+        preds = list()
         for batch_idx, (inputs, targets) in enumerate(self.train_loader):
             # start = time.time()
             # print(f'{batch_idx} / {len(train_loader)}')
@@ -475,6 +477,9 @@ class TrainingAgent:
             # _, predicted = outputs.max(1)
             # total += targets.size(0)
             # correct += predicted.eq(targets).sum().item()
+            if self.num_classes == 2:
+                tgts.extend(targets.tolist())
+                preds.extend(outputs[:, 1].tolist())
             acc1, acc5 = accuracy(
                 outputs, targets, (1, min(self.num_classes, 5)),
                 aoc=self.num_classes == 2)
@@ -513,6 +518,10 @@ class TrainingAgent:
         #     except Exception:
         #         pass
         # if GLOBALS.ADAS is not None:
+        if self.num_classes == 2:
+            fpr, tpr, thresholds = metrics.roc_curve(
+                tgts, preds, pos_label=1)
+            print("Train AUC:", metrics.auc(fpr, tpr))
         if isinstance(self.optimizer, Adas):
             self.optimizer.epoch_step(epoch)
             kg = self.optimizer.KG
@@ -568,6 +577,8 @@ class TrainingAgent:
         # total = 0
         top1 = AverageMeter()
         top5 = AverageMeter()
+        tgts = list()
+        preds = list()
         with torch.no_grad():
             for batch_idx, (inputs, targets) in enumerate(self.test_loader):
                 # inputs, targets = \
@@ -577,6 +588,9 @@ class TrainingAgent:
                 if self.device == 'cuda':
                     targets = targets.cuda(self.gpu, non_blocking=True)
                 outputs = self.network(inputs)
+                if self.num_classes == 2:
+                    tgts.extend(targets.tolist())
+                    preds.extend(outputs.tolist())
                 loss = self.criterion(outputs, targets)
                 test_loss += loss.item()
                 # _, predicted = outputs.max(1)
@@ -588,6 +602,10 @@ class TrainingAgent:
                 top1.update(acc1[0], inputs.size(0))
                 top5.update(acc5[0], inputs.size(0))
 
+        if self.num_classes == 2:
+            fpr, tpr, thresholds = metrics.roc_curve(
+                tgts, preds, pos_label=1)
+            print("Valid AUC:", metrics.auc(fpr, tpr))
         # Save checkpoint.
         # acc = 100. * correct / total
         # if acc > self.best_acc:
@@ -633,8 +651,9 @@ class AverageMeter:
 
 def accuracy(outputs, targets, topk=(1,), aoc: bool = False):
     if aoc:
-        targets = targets.detach().cpu()
-        outputs = outputs.detach().cpu()
+        return [[0], [0]]
+        targets = targets.detach().cpu().numpy()
+        outputs = outputs.detach().cpu().numpy()
         fpr, tpr, thresholds = metrics.roc_curve(
             targets, outputs[:, 1], pos_label=1)
         return [[metrics.auc(fpr, tpr)], [0.0]]

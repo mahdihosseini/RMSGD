@@ -31,6 +31,6 @@ p: 1 # options: 1, 2.
 n_trials: 1
 num_workers: 4
 max_epochs: 250
-mini_batch_size: 8
+mini_batch_size: 4
 loss: 'cross_entropy' # options: cross_entropy
 early_stop_patience: 10 # epoch window to consider when deciding whether to stop
