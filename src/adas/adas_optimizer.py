@@ -66,12 +66,14 @@ class Adas(Optimizer):
             params=all_params if params_dict is True else params,
             linear=linear)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
-        self.velocity = np.zeros(
-            len(self.metrics.params) - len(self.metrics.mask))
+        self.velocity = np.ones(
+            len(self.metrics.params) - len(self.metrics.mask)) * lr
         self.not_ready = list(range(len(self.velocity)))
         self.init_lr = lr
         self.zeta = 1.
         self.KG = 0.
+        self.epoch = 0
+        self.magnitude = 10 ** np.floor(np.log10(lr))
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov,
                         KG=self.KG, step_size=step_size, gamma=gamma,
@@ -81,10 +83,11 @@ class Adas(Optimizer):
                         init_lr=self.init_lr, zeta=self.zeta)
         super(Adas, self).__init__(params, defaults)
 
-    def epoch_step(self, epoch: int) -> None:
+    def epoch_step(self) -> None:
         self.metrics()
+        epoch = self.epoch
+        self.epoch += 1
         if epoch == 0:
-            velocity = self.init_lr * np.ones(len(self.velocity))
             self.KG = self.metrics.KG(epoch)
         else:
             KG = self.metrics.KG(epoch)
@@ -103,8 +106,16 @@ class Adas(Optimizer):
                 # self.velocity *= self.gamma
                 self.zeta *= self.gamma
 
-        self.velocity = np.maximum(
-            self.beta * self.velocity + self.zeta * velocity, 0.)
+        print('KG', list(self.KG))
+        print('prev LR', list(self.velocity))
+        if epoch > 0:
+            print("vel", list(velocity))
+            self.zeta = np.nan_to_num(
+                self.magnitude / (10 ** np.floor(np.log10(velocity))), nan=0)
+            print("vel corrected", list(velocity))
+            self.velocity = np.maximum(
+                self.beta * self.velocity + self.zeta * velocity, 0.)
+        print('LR', list(self.velocity))
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:

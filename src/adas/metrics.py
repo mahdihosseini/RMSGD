@@ -18,6 +18,9 @@ class Metrics:
         self.history = list()
         mask = list()
         for param_idx, param in enumerate(params):
+            if not param.requires_grad:
+                mask.append(param_idx)
+                continue
             param_shape = param.shape
             if not linear:
                 if len(param_shape) != 4:
@@ -61,6 +64,16 @@ class Metrics:
             elif isinstance(metric, LayerMetrics):
                 KG_list.append(metric.KG)
         return np.array(KG_list)
+
+    def MC(self, epoch: int) -> np.ndarray:
+        MC_list = list()
+        for i, (index, metric) in enumerate(self.history[epoch]):
+            if isinstance(metric, ConvLayerMetrics):
+                MC_list.append((metric.input_channel.condition +
+                                metric.output_channel.condition) / 2)
+            elif isinstance(metric, LayerMetrics):
+                MC_list.append(metric.condition)
+        return np.array(MC_list)
 
     def __call__(self) -> List[Tuple[int, Union[LayerMetrics,
                                                 ConvLayerMetrics]]]:
