@@ -73,7 +73,7 @@ class Adas(Optimizer):
         self.zeta = 1.
         self.KG = 0.
         self.epoch = 0
-        self.magnitude = 10 ** np.floor(np.log10(lr))
+        self.magnitude = 10 ** np.floor(np.log10(lr)) / 10.
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov,
                         KG=self.KG, step_size=step_size, gamma=gamma,
@@ -93,10 +93,15 @@ class Adas(Optimizer):
             KG = self.metrics.KG(epoch)
             velocity = KG - self.KG
             self.KG = KG
+            print("vel", list(velocity))
+            self.zeta = np.nan_to_num(
+                self.magnitude / (10 ** np.floor(np.log10(velocity))), nan=0)
+            print("vel corrected", list(velocity * self.zeta))
             for idx in self.not_ready:
                 if np.isclose(KG[idx], 0.):
-                    velocity[idx] = self.init_lr - \
-                        self.beta * self.velocity[idx]
+                    velocity[idx] = (
+                        self.init_lr - self.beta *
+                        self.velocity[idx]) / self.zeta[idx]
                 else:
                     self.not_ready.remove(idx)
 
@@ -109,10 +114,6 @@ class Adas(Optimizer):
         print('KG', list(self.KG))
         print('prev LR', list(self.velocity))
         if epoch > 0:
-            print("vel", list(velocity))
-            self.zeta = np.nan_to_num(
-                self.magnitude / (10 ** np.floor(np.log10(velocity))), nan=0)
-            print("vel corrected", list(velocity))
             self.velocity = np.maximum(
                 self.beta * self.velocity + self.zeta * velocity, 0.)
         print('LR', list(self.velocity))
