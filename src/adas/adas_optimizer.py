@@ -108,8 +108,10 @@ class Adas(Optimizer):
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
                 # self.lr_vector *= self.gamma
-                # self.velocity *= self.gamma
-                self.zeta *= self.gamma
+                self.velocity *= self.gamma
+                velocity *= self.gamma
+                self.magnitude *= 0.1
+                # self.zeta *= self.gamma
 
         print('KG', list(self.KG))
         print('prev LR', list(self.velocity))
