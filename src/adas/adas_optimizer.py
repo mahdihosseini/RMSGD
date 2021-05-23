@@ -115,6 +115,8 @@ class Adas(Optimizer):
 
         print('KG', list(self.KG))
         print('prev LR', list(self.velocity))
+        if self.init_lr < 1:
+            self.zeta = 1
         if epoch > 0:
             self.velocity = np.maximum(
                 self.beta * self.velocity + self.zeta * velocity, 0.)
