@@ -13,7 +13,7 @@ from torch.nn import functional as F
 import sys
 mod_name = vars(sys.modules[__name__])['__name__']
 
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .utils import (
         round_filters,
         round_repeats,

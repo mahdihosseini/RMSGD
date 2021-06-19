@@ -2,13 +2,13 @@ from setuptools import setup
 from glob import glob
 
 setup(
-    name='adas',
+    name='rmsgd',
     use_scm_version=True,
     packages=[''],
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
-    # url='https://github.com/mahdihosseini/AdaS',
+    # url='https://github.com/mahdihosseini/RMSGD',
     python_requires='~=3.7',
     install_requires=[
         # 'attrs==19.3.0',
@@ -65,7 +65,7 @@ setup(
     license='License :: Other/Proprietary License',
     author='Mahdi Hosseini',
     author_email='mahdi.hosseini@mail.utoronto.ca',
-    description='Python package for AdaS: Adaptive Scheduling of Stochastic Gradients',
+    description="Python package for RMSGD's paper code",
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

@@ -1,16 +1,16 @@
-# [Adas: Adaptive Scheduling of Stochastic Gradients](https://openreview.net/forum?id=qUzxZj13RWY) #
+# [Exploiting Explainable Metrics for Augmented SGD]() #
 ## Status ##
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![maintenance](https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 [![python](https://img.shields.io/badge/python-v3.7-blue)](https://www.python.org/downloads/release/python-370/)
-![size](https://img.shields.io/github/repo-size/mahdihosseini/AdaS)
+![size](https://img.shields.io/github/repo-size/mahdihosseini/RMSGD)
 
 ## Table of Contents ##
-- [Adas: Adaptive Scheduling of Stochastic Gradients](#adas--adaptive-scheduling-of-stochastic-gradients)
+- [Exploiting Explainable Metrics for Augmented SGD](#exploiting-explainable-metrics-for-augmented-sgd)
   * [Status](#status)
   * [Introduction](#introduction)
     + [License](#license)
-    + [Citing AdaS](#citing-adas)
+    + [Citing RMSGD](#citing-RMSGD)
     + [Empirical Classification Results on CIFAR10 and CIFAR100](#empirical-classification-results-on-cifar10-and-cifar100)
     + [QC Metrics](#qc-metrics)
   * [Requirements](#requirements)
@@ -23,17 +23,17 @@
     + [Pytest](#pytest)
 
 ## Introduction ##
-**[AdaS](https://openreview.net/forum?id=qUzxZj13RWY)** is an adaptive optimizer for scheduling the learning rate in training Convolutional Neural Networks (CNN)
+**[RMSGD]()** is an adaptive optimizer for scheduling the learning rate in training Convolutional Neural Networks (CNN)
 
-- AdaS exhibits the rapid minimization characteristics that adaptive optimizers like [AdaM](https://arxiv.org/abs/1412.6980) are favoured for
-- AdaS exhibits *generalization* (low testing loss) characteristics on par with SGD based optimizers, improving on the poor *generalization* characteristics of adaptive optimizers
-- AdaS introduces no computational overhead over adaptive optimizers (see [experimental results](#some-experimental-results))
-- In addition to optimization, AdaS introduces new probing metrics for CNN layer evaulation ([quality metrics](#knowledge-gain-vs-mapping-condition---cnn-quality-metrics))
+- RMSGD exhibits the rapid minimization characteristics that adaptive optimizers like [AdaM](https://arxiv.org/abs/1412.6980) are favoured for
+- RMSGD exhibits *generalization* (low testing loss) characteristics on par with SGD based optimizers, improving on the poor *generalization* characteristics of adaptive optimizers
+- RMSGD introduces no computational overhead over adaptive optimizers (see [experimental results](#some-experimental-results))
+- In addition to optimization, RMSGD introduces new probing metrics for CNN layer evaulation ([quality metrics](#knowledge-gain-vs-mapping-condition---cnn-quality-metrics))
 
-This repository contains a [PyTorch](https://pytorch.org/) implementation of the AdaS learning rate scheduler algorithm.
+This repository contains a [PyTorch](https://pytorch.org/) implementation of the RMSGD learning rate scheduler algorithm.
 
 ### License ###
-AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for more information)
+RMSGD is released under the MIT License (refer to the [LICENSE](LICENSE) file for more information)
 |Permissions|Conditions|Limitations|
 |---|---|---|
 |![license](https://img.shields.io/badge/-%20-brightgreen) Commerical use|![license](https://img.shields.io/badge/-%20-blue) License and Copyright Notice|![license](https://img.shields.io/badge/-%20-red) Liability|
@@ -41,7 +41,7 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 |![license](https://img.shields.io/badge/-%20-brightgreen) Modification | | |
 |![license](https://img.shields.io/badge/-%20-brightgreen) Private Use| | |
 
-### Citing AdaS ###
+### Citing RMSGD ###
 ```text
 @article{hosseini2020adas,
   title={AdaS: Adaptive Scheduling of Stochastic Gradients},
@@ -60,25 +60,25 @@ AdaS is released under the MIT License (refer to the [LICENSE](LICENSE) file for
 ![table 1](figures/tabular_results.png)
 
 ### QC Metrics ###
-Please refer to [QC on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
+Please refer to [QC on Wiki](https://github.com/mahdihosseini/RMSGD/wiki/On-Quality-Metrics) for more information on two metrics of knowledge gain and mapping condition for monitoring training quality of CNNs
 
 ## Requirements ##
 ### Software/Hardware ###
 We use `Python 3.7`.
 
-Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Installation-Requirements) for complete guideline.
+Please refer to [Requirements on Wiki](https://github.com/mahdihosseini/RMSGD/wiki/On-Installation-Requirements) for complete guideline.
 
 ### Computational Overhead ###
-AdaS introduces no overhead (very minimal) over adaptive optimizers e.g. all mSGD+StepLR, mSGD+AdaS, AdaM consume 40~43 sec/epoch to train ResNet34/CIFAR10 using the same PC/GPU platform
+RMSGD introduces no overhead (very minimal) over adaptive optimizers e.g. all mSGD+StepLR, mSGD+RMSGD, AdaM consume 40~43 sec/epoch to train ResNet34/CIFAR10 using the same PC/GPU platform
 
 ### Installation ###
-There are two versions of the AdaS code contained in this repository.
-1. a python-package version of the AdaS code, which can be `pip`-installed.
+There are two versions of the RMSGD code contained in this repository.
+1. a python-package version of the RMSGD code, which can be `pip`-installed.
 2. a static python module (unpackaged), runable as a script.
 
 All source code can be found in [src/adas](src/adas)
 
-For more information, also refer to [Installation on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Package-Installation)
+For more information, also refer to [Installation on Wiki](https://github.com/mahdihosseini/RMSGD/wiki/On-Package-Installation)
 
 
 ### Usage ###
@@ -91,7 +91,7 @@ Moving forward, I will refer to console usage of this library. IDE usage is no d
 dataset: 'CIFAR10'
 network: 'VGG16'
 optimizer: 'SGD'
-scheduler: 'AdaS'
+scheduler: 'RMSGD'
 
 
 ###### Suggested Tune ######
@@ -113,14 +113,14 @@ p: 1 # options: 1, 2.
 loss: 'cross_entropy'
 ```
 
-For complete instruction on configuration and different parameter setup, please refer to [Configuration on Wiki](https://github.com/mahdihosseini/AdaS/wiki/On-Configuration-File)
+For complete instruction on configuration and different parameter setup, please refer to [Configuration on Wiki](https://github.com/mahdihosseini/RMSGD/wiki/On-Configuration-File)
 
 ### Common Issues (running list) ###
 - None :)
 
 ## TODO ###
 - Add medical imaging datasets (e.g. digital pathology, xray, and ct scans)
-- Extension of AdaS to Deep Neural Networks
+- Extension of RMSGD to Deep Neural Networks
 
 ### Pytest ###
 Note the following:

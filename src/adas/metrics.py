@@ -28,7 +28,7 @@ import numpy as np
 import torch
 
 mod_name = vars(sys.modules[__name__])['__name__']
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .components import LayerType, IOMetrics
     from .VBMF import EVBMF
 else:

@@ -7,7 +7,7 @@ import torch
 
 
 mod_name = vars(sys.modules[__name__])['__name__']
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from . import adasls_utils as adasls_utils
 else:
     import optim.adasls_utils as adasls_utils

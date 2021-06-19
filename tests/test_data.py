@@ -2,7 +2,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 
-from adas.data import get_data
+from rmsgd.data import get_data
 from support import fail_if
 
 

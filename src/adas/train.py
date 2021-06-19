@@ -43,7 +43,7 @@ import yaml
 
 mod_name = vars(sys.modules[__name__])['__name__']
 
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
     from .optim import get_optimizer_scheduler
@@ -57,7 +57,7 @@ if 'adas.' in mod_name:
     from .optim.sls import SLS
     from .optim.sps import SPS
     from .data import get_data
-    from .optim.adas import Adas
+    from .optim.rmsgd import RMSGD
 else:
     from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
         OneCycleLR
@@ -72,12 +72,12 @@ else:
     from optim.sls import SLS
     from optim.sps import SPS
     from data import get_data
-    from optim.adas import Adas
+    from optim.rmsgd import RMSGD
 
 
 def args(sub_parser: _SubParsersAction):
     # print("\n---------------------------------")
-    # print("Adas Train Args")
+    # print("RMSGD Train Args")
     # print("---------------------------------\n")
     # sub_parser.add_argument(
     #     '-vv', '--very-verbose', action='store_true',
@@ -95,16 +95,16 @@ def args(sub_parser: _SubParsersAction):
         help="Set configuration file path: Default = 'config.yaml'")
     sub_parser.add_argument(
         '--data', dest='data',
-        default='.adas-data', type=str,
-        help="Set data directory path: Default = '.adas-data'")
+        default='.rmsgd-data', type=str,
+        help="Set data directory path: Default = '.rmsgd-data'")
     sub_parser.add_argument(
         '--output', dest='output',
-        default='.adas-output', type=str,
-        help="Set output directory path: Default = '.adas-output'")
+        default='.rmsgd-output', type=str,
+        help="Set output directory path: Default = '.rmsgd-output'")
     sub_parser.add_argument(
         '--checkpoint', dest='checkpoint',
-        default='.adas-checkpoint', type=str,
-        help="Set checkpoint directory path: Default = '.adas-checkpoint'")
+        default='.rmsgd-checkpoint', type=str,
+        help="Set checkpoint directory path: Default = '.rmsgd-checkpoint'")
     sub_parser.add_argument(
         '--resume', dest='resume',
         default=None, type=str,
@@ -213,7 +213,7 @@ class TrainingAgent:
         self.checkpoint_path = checkpoint_path
 
         self.load_config(config_path, data_path)
-        print("Adas: Experiment Configuration")
+        print("RMSGD: Experiment Configuration")
         print("-"*45)
         for k, v in self.config.items():
             if isinstance(v, list) or isinstance(v, dict):
@@ -246,13 +246,13 @@ class TrainingAgent:
         self.criterion = torch.nn.CrossEntropyLoss().cuda(self.gpu) if \
             config['loss'] == 'cross_entropy' else None
         if np.less(float(config['early_stop_threshold']), 0):
-            print("Adas: Notice: early stop will not be used as it was " +
+            print("RMSGD: Notice: early stop will not be used as it was " +
                   f"set to {config['early_stop_threshold']}, " +
                   "training till completion")
         elif config['optimizer'] != 'SGD' and \
-                config['scheduler'] != 'Adas':
-            print("Adas: Notice: early stop will not be used as it is not " +
-                  "SGD with Adas, training till completion")
+                config['scheduler'] != 'RMSGD':
+            print("RMSGD: Notice: early stop will not be used as it is not " +
+                  "SGD with RMSGD, training till completion")
             config['early_stop_threshold'] = -1.
         self.early_stop = EarlyStop(
             patience=int(config['early_stop_patience']),
@@ -392,7 +392,7 @@ class TrainingAgent:
 
             df.to_excel(self.output_filename)
             if self.early_stop(train_loss):
-                print("Adas: Early stop activated.")
+                print("RMSGD: Early stop activated.")
                 break
             if not self.mpd or \
                     (self.mpd and self.rank % self.ngpus_per_node == 0):
@@ -417,8 +417,8 @@ class TrainingAgent:
         torch.save(data, str(self.checkpoint_path / 'last.pth.tar'))
 
     def epoch_iteration(self, trial: int, epoch: int):
-        # logging.info(f"Adas: Train: Epoch: {epoch}")
-        # global net, performance_statistics, metrics, adas, config
+        # logging.info(f"RMSGD: Train: Epoch: {epoch}")
+        # global net, performance_statistics, metrics, rmsgd, config
         self.network.train()
         train_loss = 0
         top1 = AverageMeter()
@@ -455,7 +455,7 @@ class TrainingAgent:
                 self.optimizer.first_step(zero_grad=True)
                 outputs = self.network(inputs)
                 self.criterion(outputs, targets).backward()
-                if isinstance(self.scheduler, Adas):
+                if isinstance(self.scheduler, RMSGD):
                     self.optimizer.second_step(
                         self.metrics.layers_index_todo,
                         self.scheduler.lr_vector, zero_grad=True)
@@ -465,7 +465,7 @@ class TrainingAgent:
                 outputs = self.network(inputs)
                 loss = self.criterion(outputs, targets)
                 loss.backward()
-                # if isinstance(self.scheduler, Adas):
+                # if isinstance(self.scheduler, RMSGD):
                 #     self.optimizer.step(self.metrics.layers_index_todo,
                 #                         self.scheduler.lr_vector)
                 if isinstance(self.optimizer, SPS):
@@ -517,14 +517,14 @@ class TrainingAgent:
         #         print(k, len(v))
         #     except Exception:
         #         pass
-        # if GLOBALS.ADAS is not None:
+        # if GLOBALS.RMSGD is not None:
         if self.num_classes == 2:
             fpr, tpr, thresholds = metrics.roc_curve(
                 tgts, preds, pos_label=1)
             auc = metrics.auc(fpr, tpr)
             print("Train AUC:", auc)
             self.performance_statistics[f'train_auc_epoch_{epoch}'] = auc
-        if isinstance(self.optimizer, Adas):
+        if isinstance(self.optimizer, RMSGD):
             self.optimizer.epoch_step(epoch)
             kg = self.optimizer.KG
             new_kg = list()
@@ -549,7 +549,7 @@ class TrainingAgent:
                     self.optimizer, SPS) or isinstance(self.optimizer, AdaSLS):
                 self.performance_statistics[f'aearning_rate_epoch_{epoch}'] = \
                     self.optimizer.state['step_size']
-            # elif isinstance(self.optimizer, Adas):
+            # elif isinstance(self.optimizer, RMSGD):
             #     lr_vec = self.optimizer.param_groups[0]['lr']
             #     new_lr_vec = list()
             #     count = 0
@@ -613,13 +613,13 @@ class TrainingAgent:
         # Save checkpoint.
         # acc = 100. * correct / total
         # if acc > self.best_acc:
-        #     # print('Adas: Saving checkpoint...')
+        #     # print('RMSGD: Saving checkpoint...')
         #     state = {
         #         'net': self.network.state_dict(),
         #         'acc': acc,
         #         'epoch': epoch + 1,
         #     }
-        #     if not isinstance(self.scheduler, Adas):
+        #     if not isinstance(self.scheduler, RMSGD):
         #         state['historical_io_metrics'] = \
         #             self.metrics.historical_metrics
         #     torch.save(state, str(self.checkpoint_path / 'ckpt.pth'))
@@ -686,12 +686,12 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
     checkpoint_path = root_path / Path(args.checkpoint).expanduser()
 
     if not config_path.exists():
-        raise ValueError(f"Adas: Config path {config_path} does not exist")
+        raise ValueError(f"RMSGD: Config path {config_path} does not exist")
     if not data_path.exists():
-        print(f"Adas: Data dir {data_path} does not exist, building")
+        print(f"RMSGD: Data dir {data_path} does not exist, building")
         data_path.mkdir(exist_ok=True, parents=True)
     if not output_path.exists():
-        print(f"Adas: Output dir {output_path} does not exist, building")
+        print(f"RMSGD: Output dir {output_path} does not exist, building")
         output_path.mkdir(exist_ok=True, parents=True)
     if not checkpoint_path.exists():
         checkpoint_path.mkdir(exist_ok=True, parents=True)
@@ -703,7 +703,7 @@ def setup_dirs(args: APNamespace) -> Tuple[Path, Path, Path, Path]:
 
 
 def main(args: APNamespace):
-    print("Adas: Argument Parser Options")
+    print("RMSGD: Argument Parser Options")
     print("-"*45)
     for arg in vars(args):
         attr = getattr(args, arg)
@@ -748,7 +748,7 @@ def main_worker(gpu: int, ngpus_per_node: int, args: APNamespace):
         mpd=args.mpd,
         dist_url=args.dist_url,
         dist_backend=args.dist_backend)
-    print(f"Adas: Pytorch device is set to {training_agent.device}")
+    print(f"RMSGD: Pytorch device is set to {training_agent.device}")
     training_agent.train()
 
 

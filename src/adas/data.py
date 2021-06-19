@@ -32,7 +32,7 @@ import torch
 
 mod_name = vars(sys.modules[__name__])['__name__']
 
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .datasets import ImageNet, TinyImageNet, MHIST
 else:
     from datasets import ImageNet, TinyImageNet, MHIST

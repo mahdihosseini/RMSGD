@@ -42,7 +42,7 @@ import os
 
 mod_name = vars(sys.modules[__name__])['__name__']
 
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .utils import safe_float_cast
 else:
     from utils import safe_float_cast
@@ -65,8 +65,8 @@ class GPU:
         self.temperature = 0.
         ret, ids = self.update()
         if not ret:
-            print(f"AdaS: GPU ID {ID} was not found")
-            print(f"AdaS: Valid GPU IDs are {ids}")
+            print(f"RMSGD: GPU ID {ID} was not found")
+            print(f"RMSGD: Valid GPU IDs are {ids}")
             raise ValueError
 
     def update(self) -> None:

@@ -64,14 +64,14 @@ args = parser.parse_args()
 #     logging.warning(
 #         f"Frontend: Log level \"{args.log_level}\" unknown, defaulting" +
 #         " to INFO.")
-# logging.info(f"AdaS: Log Level set to {str(args.log_level)}")
+# logging.info(f"RMSGD: Log Level set to {str(args.log_level)}")
 
-# logging.info("AdaS: Main")
+# logging.info("RMSGD: Main")
 
 if str(args.command) == 'train':
     train_main(args)
 # if str(args.command) == 'lrrt':
 #     lrrt_main(args)
 else:
-    # logging.critical(f"AdaS: Unknown subcommand {args.command}")
+    # logging.critical(f"RMSGD: Unknown subcommand {args.command}")
     ...

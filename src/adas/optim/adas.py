@@ -9,13 +9,13 @@ import torch
 
 mod_name = vars(sys.modules[__name__])['__name__']
 
-if 'adas.' in mod_name:
+if 'rmsgd.' in mod_name:
     from .metrics import Metrics
 else:
     from optim.metrics import Metrics
 
 
-class Adas(Optimizer):
+class RMSGD(Optimizer):
     """
     Vectorized SGD from torch.optim.SGD
     """
@@ -45,9 +45,9 @@ class Adas(Optimizer):
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
-        super(Adas, self).__init__(params, defaults)
+        super(RMSGD, self).__init__(params, defaults)
 
-        # Adas Specific stuff (not SGD)
+        # RMSGD Specific stuff (not SGD)
         if np.less(beta, 0) or np.greater_equal(beta, 1):
             raise ValueError(f'Invalid beta: {beta}')
         if np.less(gamma, 0):
@@ -68,7 +68,7 @@ class Adas(Optimizer):
         self.KG = 0.
 
     def __setstate__(self, state):
-        super(Adas, self).__setstate__(state)
+        super(RMSGD, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('nesterov', False)
 
