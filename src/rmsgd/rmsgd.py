@@ -8,7 +8,7 @@ import torch
 from .metrics import Metrics
 
 
-class Adas(Optimizer):
+class RMSGD(Optimizer):
     """
     Vectorized SGD from torch.optim.SGD
     """
@@ -51,7 +51,7 @@ class Adas(Optimizer):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
 
-        # Adas Specific stuff (not SGD)
+        # Specific stuff (not SGD)
         if np.less(beta, 0) or np.greater_equal(beta, 1):
             raise ValueError(f'Invalid beta: {beta}')
         if np.less(gamma, 0):
@@ -81,7 +81,7 @@ class Adas(Optimizer):
                         lr_vector=self.lr_vector,
                         velocity=self.velocity, not_ready=self.not_ready,
                         init_lr=self.init_lr, zeta=self.zeta)
-        super(Adas, self).__init__(params, defaults)
+        super(RMSGD, self).__init__(params, defaults)
 
     def epoch_step(self) -> None:
         self.metrics()
