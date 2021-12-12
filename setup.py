@@ -2,10 +2,10 @@ from setuptools import setup
 from glob import glob
 
 setup(
-    name='adas',
+    name='rmsgd',
     use_scm_version=True,
     version="1.1.3",
-    packages=['adas'],
+    packages=['rmsgd'],
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
