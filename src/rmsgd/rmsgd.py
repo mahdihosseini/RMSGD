@@ -34,6 +34,7 @@ class RMSGD(Optimizer):
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
+        params = list(params)
 
         # Specific stuff (not SGD)
         if np.less(beta, 0) or np.greater_equal(beta, 1):
