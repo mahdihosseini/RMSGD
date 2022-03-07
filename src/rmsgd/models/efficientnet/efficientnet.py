@@ -11,34 +11,18 @@ from torch import nn
 from torch.nn import functional as F
 
 import sys
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .utils import (
-        round_filters,
-        round_repeats,
-        drop_connect,
-        get_same_padding_conv2d,
-        get_model_params,
-        efficientnet_params,
-        load_pretrained_weights,
-        Swish,
-        MemoryEfficientSwish,
-        calculate_output_image_size
-    )
-else:
-    from models.efficientnet.utils import (
-        round_filters,
-        round_repeats,
-        drop_connect,
-        get_same_padding_conv2d,
-        get_model_params,
-        efficientnet_params,
-        load_pretrained_weights,
-        Swish,
-        MemoryEfficientSwish,
-        calculate_output_image_size
-    )
+from models.efficientnet.utils import (
+    round_filters,
+    round_repeats,
+    drop_connect,
+    get_same_padding_conv2d,
+    get_model_params,
+    efficientnet_params,
+    load_pretrained_weights,
+    Swish,
+    MemoryEfficientSwish,
+    calculate_output_image_size
+)
 
 
 VALID_MODELS = (

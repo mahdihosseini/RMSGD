@@ -22,18 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from typing import List, Any
-import sys
 
 import numpy as np
 import torch
 
-mod_name = vars(sys.modules[__name__])['__name__']
-if 'rmsgd.' in mod_name:
-    from .components import LayerType, IOMetrics
-    from .VBMF import EVBMF
-else:
-    from components import LayerType, IOMetrics
-    from VBMF import EVBMF
+from components import LayerType, IOMetrics
+from VBMF import EVBMF
 
 
 class Metrics():

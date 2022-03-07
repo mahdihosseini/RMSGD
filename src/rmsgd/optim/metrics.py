@@ -7,14 +7,8 @@ import sys
 import numpy as np
 import torch
 
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .components import LayerMetrics, ConvLayerMetrics
-    from .matrix_factorization import EVBMF
-else:
-    from optim.components import LayerMetrics, ConvLayerMetrics
-    from optim.matrix_factorization import EVBMF
+from optim.components import LayerMetrics, ConvLayerMetrics
+from optim.matrix_factorization import EVBMF
 
 
 class Metrics:

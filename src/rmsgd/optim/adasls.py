@@ -6,11 +6,7 @@ import numpy as np
 import torch
 
 
-mod_name = vars(sys.modules[__name__])['__name__']
-if 'rmsgd.' in mod_name:
-    from . import adasls_utils as adasls_utils
-else:
-    import optim.adasls_utils as adasls_utils
+import optim.adasls_utils as adasls_utils
 
 
 class AdaSLS(torch.optim.Optimizer):

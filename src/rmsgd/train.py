@@ -41,38 +41,20 @@ import numpy as np
 import torch
 import yaml
 
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
-        OneCycleLR
-    from .optim import get_optimizer_scheduler
-    from .optim.sam import SAMVec, SAM
-    from .early_stop import EarlyStop
-    from .optim.adasls import AdaSLS
-    from .models import get_network
-    from .utils import parse_config
-    from .metrics import Metrics
-    from .models.vgg import VGG
-    from .optim.sls import SLS
-    from .optim.sps import SPS
-    from .data import get_data
-    from .optim.rmsgd import RMSGD
-else:
-    from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
-        OneCycleLR
-    from optim import get_optimizer_scheduler
-    from optim.sam import SAMVec, SAM
-    from early_stop import EarlyStop
-    from optim.adasls import AdaSLS
-    from models import get_network
-    from utils import parse_config
-    from metrics import Metrics
-    from models.vgg import VGG
-    from optim.sls import SLS
-    from optim.sps import SPS
-    from data import get_data
-    from optim.rmsgd import RMSGD
+from optim.lr_scheduler import CosineAnnealingWarmRestarts, StepLR, \
+    OneCycleLR
+from optim import get_optimizer_scheduler
+from optim.sam import SAMVec, SAM
+from early_stop import EarlyStop
+from optim.adasls import AdaSLS
+from models import get_network
+from utils import parse_config
+from metrics import Metrics
+from models.vgg import VGG
+from optim.sls import SLS
+from optim.sps import SPS
+from data import get_data
+from optim.rmsgd import RMSGD
 
 
 def args(sub_parser: _SubParsersAction):

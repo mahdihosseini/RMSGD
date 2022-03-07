@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from pathlib import Path
-import sys
 
 import torchvision.transforms as transforms
 
@@ -30,12 +29,7 @@ import torchvision
 import numpy as np
 import torch
 
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .datasets import ImageNet, TinyImageNet, MHIST
-else:
-    from datasets import ImageNet, TinyImageNet, MHIST
+from datasets import ImageNet, TinyImageNet, MHIST
 # from .folder2lmdb import ImageFolderLMDB
 
 

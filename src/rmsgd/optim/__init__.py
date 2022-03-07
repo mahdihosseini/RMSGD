@@ -25,62 +25,32 @@ from typing import Any, List
 import sys
 
 import torch
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
-        OneCycleLR
-    from .adamp import AdamPVec, AdamP
-    from .sam import SAMVec, SAM
-    from .sgdp import SGDPVec, SGDP
-    from .novograd import NovoGrad
-    from .adabound import AdaBound
-    from .adashift import AdaShift
-    from .adadelta import Adadelta
-    from .adagrad import Adagrad
-    from .rmsprop import RMSprop
-    from .nosadam import NosAdam
-    from .laprop import LaProp
-    from .adamod import AdaMod
-    from .adamax import Adamax
-    from .adasls import AdaSLS
-    from .nadam import NAdam
-    from .padam import PAdam
-    from .radam import RAdam
-    from .rmsgd import RMSGD
-    from .sgd import SGDVec
-    from .adam import Adam
-    from .sgd import SGD
-    from .sps import SPS
-    from .sls import SLS
-    from .lrd import LRD
-else:
-    from optim.lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
-        OneCycleLR
-    from optim.adamp import AdamPVec, AdamP
-    from optim.sam import SAMVec, SAM
-    from optim.sgdp import SGDPVec, SGDP
-    from optim.novograd import NovoGrad
-    from optim.adabound import AdaBound
-    from optim.adashift import AdaShift
-    from optim.adadelta import Adadelta
-    from optim.adagrad import Adagrad
-    from optim.rmsprop import RMSprop
-    from optim.nosadam import NosAdam
-    from optim.laprop import LaProp
-    from optim.adamod import AdaMod
-    from optim.adamax import Adamax
-    from optim.adasls import AdaSLS
-    from optim.nadam import NAdam
-    from optim.padam import PAdam
-    from optim.radam import RAdam
-    from optim.rmsgd import RMSGD
-    from optim.sgd import SGDVec
-    from optim.adam import Adam
-    from optim.sgd import SGD
-    from optim.sps import SPS
-    from optim.sls import SLS
-    from optim.lrd import LRD
+from optim.lr_scheduler import StepLR, CosineAnnealingWarmRestarts,\
+    OneCycleLR
+from optim.adamp import AdamPVec, AdamP
+from optim.sam import SAMVec, SAM
+from optim.sgdp import SGDPVec, SGDP
+from optim.novograd import NovoGrad
+from optim.adabound import AdaBound
+from optim.adashift import AdaShift
+from optim.adadelta import Adadelta
+from optim.adagrad import Adagrad
+from optim.rmsprop import RMSprop
+from optim.nosadam import NosAdam
+from optim.laprop import LaProp
+from optim.adamod import AdaMod
+from optim.adamax import Adamax
+from optim.adasls import AdaSLS
+from optim.nadam import NAdam
+from optim.padam import PAdam
+from optim.radam import RAdam
+from optim.rmsgd import RMSGD
+from optim.sgd import SGDVec
+from optim.adam import Adam
+from optim.sgd import SGD
+from optim.sps import SPS
+from optim.sls import SLS
+from optim.lrd import LRD
 
 
 def get_optimizer_scheduler(

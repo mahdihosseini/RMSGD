@@ -4,21 +4,13 @@ from pathlib import Path
 
 import cProfile
 import pstats
-import sys
 import io
 
 from memory_profiler import memory_usage
 
-mod_name = vars(sys.modules[__name__])['__name__']
-
-if 'rmsgd.' in mod_name:
-    from .components import Statistics
-    from .utils import pstats_to_dict
-    from .gpu import GPU
-else:
-    from components import Statistics
-    from utils import pstats_to_dict
-    from gpu import GPU
+from components import Statistics
+from utils import pstats_to_dict
+from gpu import GPU
 
 
 class Profiler:
