@@ -1,0 +1,32 @@
+###### Application Specific ######
+dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
+network: 'ResNet34' # options: see model_choices.txt
+optimizer: 'RMSGD' # options: see optimizer_choices.txt
+scheduler: 'None' # options: see scheduler_choices.txt
+
+
+###### Suggested Tune ######
+init_lr: 0.03
+early_stop_threshold: -1 # only tested with RMGSD.
+                         # set to -1 if you wish not to use early stop,
+                         # or equally, set to a high value.
+optimizer_kwargs: # named-kwargs to pass to optimizer.
+  momentum: 0.9
+  weight_decay: 1e-4
+  beta: 0.98
+  linear: False
+  gamma: 0.98
+  step_size: 1
+scheduler_kwargs: {} # named-kwargs to pass to scheduler.
+cutout: False
+n_holes: 1
+cutout_length: 16
+
+###### Suggested Default ######
+p: 1 # not to be changed
+n_trials: 1
+num_workers: 16
+max_epochs: 250
+mini_batch_size: 128
+loss: 'cross_entropy' # options: cross_entropy
+early_stop_patience: 10 # epoch window to consider when deciding whether to stop
