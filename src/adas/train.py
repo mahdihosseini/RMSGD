@@ -224,7 +224,8 @@ class TrainingAgent:
 
     def load_config(self, config_path: Path, data_path: Path) -> None:
         with config_path.open() as f:
-            self.config = config = parse_config(yaml.load(f))
+            self.config = config = parse_config(
+                yaml.load(f, Loader=yaml.Loader))
         if self.device == 'cpu':
             warnings.warn("Using CPU will be slow")
         elif self.dist:
