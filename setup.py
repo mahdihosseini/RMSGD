@@ -4,7 +4,7 @@ from glob import glob
 setup(
     name='rmsgd',
     use_scm_version=True,
-    version="1.1.3",
+    version="1.0.0",
     packages=['rmsgd'],
     package_dir={'': 'src'},
     include_package_data=True,
