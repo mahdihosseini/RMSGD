@@ -9,7 +9,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
-    url='https://github.com/mahdihosseini/AdaS',
+    url='https://github.com/mahdihosseini/RMSGD',
     python_requires='>=3.6',
     install_requires=[
         "numpy>=1.20.2",
@@ -32,7 +32,7 @@ setup(
     license='License :: Other/Proprietary License',
     author='Mahdi Hosseini and Mathieu Tuli',
     author_email='mahdi.hosseini@mail.utoronto.ca',
-    description='Python package for AdaS: Adaptive Scheduling of Stochastic Gradients',
+    description='Python package for RMSGD',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
