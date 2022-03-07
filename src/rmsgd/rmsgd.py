@@ -23,8 +23,7 @@ class RMSGD(Optimizer):
                  momentum: float = 0,
                  dampening: float = 0,
                  weight_decay: float = 0,
-                 nesterov: bool = False,
-                 params_dict: bool = False):
+                 nesterov: bool = False,):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if momentum < 0.0:
@@ -32,21 +31,6 @@ class RMSGD(Optimizer):
         if weight_decay < 0.0:
             raise ValueError(
                 "Invalid weight_decay value: {}".format(weight_decay))
-        all_params = None
-        if params_dict:
-            found = False
-            for i, d in enumerate(params):
-                if "all_params" in d.keys():
-                    all_params = d["all_params"]
-                    del params[i]
-                    found = True
-                    break
-            if not found:
-                raise ValueError(
-                    "If passing in a list of dictionaries for " +
-                    "parameters, ensure one element in list has " +
-                    "'all_params' with 'list(model.parameters())' as "
-                    + "its value")
         if nesterov and (momentum <= 0 or dampening != 0):
             raise ValueError(
                 "Nesterov momentum requires a momentum and zero dampening")
@@ -62,9 +46,7 @@ class RMSGD(Optimizer):
         self.step_size = step_size
         self.gamma = gamma
         self.beta = beta
-        self.metrics = metrics = Metrics(
-            params=all_params if params_dict is True else params,
-            linear=linear)
+        self.metrics = metrics = Metrics(params=params, linear=linear)
         self.lr_vector = np.repeat(a=lr, repeats=len(metrics.params))
         self.velocity = np.ones(
             len(self.metrics.params) - len(self.metrics.mask)) * lr
@@ -73,7 +55,6 @@ class RMSGD(Optimizer):
         self.zeta = 1.
         self.KG = 0.
         self.epoch = 0
-        self.magnitude = 10 ** np.floor(np.log10(lr)) / 10.
         defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
                         weight_decay=weight_decay, nesterov=nesterov,
                         KG=self.KG, step_size=step_size, gamma=gamma,
@@ -88,13 +69,12 @@ class RMSGD(Optimizer):
         epoch = self.epoch
         self.epoch += 1
         if epoch == 0:
+            velocity = self.init_lr * np.ones(len(self.velocity))
             self.KG = self.metrics.KG(epoch)
         else:
             KG = self.metrics.KG(epoch)
             velocity = KG - self.KG
             self.KG = KG
-            self.zeta = np.nan_to_num(
-                self.magnitude / (10 ** np.floor(np.log10(velocity))), nan=0)
             for idx in self.not_ready:
                 if np.isclose(KG[idx], 0.):
                     velocity[idx] = (
@@ -105,17 +85,11 @@ class RMSGD(Optimizer):
 
         if self.step_size is not None:
             if epoch % self.step_size == 0 and epoch > 0:
-                # self.lr_vector *= self.gamma
                 self.velocity *= self.gamma
-                velocity *= self.gamma
-                self.magnitude *= 0.1
-                # self.zeta *= self.gamma
+                self.zeta *= self.gamma
 
-        if self.init_lr < 1:
-            self.zeta = 1
-        if epoch > 0:
-            self.velocity = np.maximum(
-                self.beta * self.velocity + self.zeta * velocity, 0.)
+        self.velocity = np.maximum(
+            self.beta * self.velocity + self.zeta * velocity, 0.)
         count = 0
         for i in range(len(self.metrics.params)):
             if i in self.metrics.mask:
