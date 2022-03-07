@@ -20,6 +20,7 @@ pip install .
 ## Usage
 RMSGD can be used like any other optimizer, with one additional step:
 ```python
+from rmsgd import RMSGD
 ...
 optimizer = RMSGD(...)
 ...
