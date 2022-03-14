@@ -109,6 +109,10 @@ def parse_config(
         'EfficientNetB0CIFAR', 'EfficientNetB1CIFAR', 'EfficientNetB2CIFAR',
         'EfficientNetB3CIFAR', 'EfficientNetB4CIFAR', 'EfficientNetB5CIFAR',
         'EfficientNetB6CIFAR', 'EfficientNetB7CIFAR', 'EfficientNetB8CIFAR',
+        'ConvNeXtTiny',
+        'ConvNeXtBase',
+        'ConvNeXtLarge',
+        'ConvNeXtXLarge',
     }
     if config['network'] not in valid_models:
         raise ValueError(
