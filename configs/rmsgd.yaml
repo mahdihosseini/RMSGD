@@ -1,6 +1,6 @@
 ###### Application Specific ######
 dataset: 'CIFAR10' # options: CIFAR100, CIFAR10, ImageNet
-network: 'ResNet34' # options: see model_choices.txt
+network: 'ResNet34CIFAR' # options: see model_choices.txt
 optimizer: 'RMSGD' # options: see optimizer_choices.txt
 scheduler: 'None' # options: see scheduler_choices.txt
 
