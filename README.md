@@ -1,6 +1,9 @@
 # RMSGD: Augmented SGD Optimizer
 Official PyTorch implementation of the **RMSGD** optimizer from:
-[Exploiting Explainable Metrics for Augmented SGD]()
+> [**Exploiting Explainable Metrics for Augmented SGD**](https://arxiv.org/abs/2203.1672)         
+> Mahdi S. Hosseini, Mathieu Tuli, Konstantinos N. Plataniotis        
+> *Accepted in IEEE/CVF Conference on Computer Vision and Pattern Recognition ([CVPR2022](https://cvpr2022.thecvf.com/))*
+> 
 
 ---
 We propose new explainability metrics that measure the redundant information in a network's layers and exploit this information to augment the Stochastic Gradient Descent (SGD) optimizer by adaptively adjusting the learning rate in each layer. We call this new optimizer **RMSGD**. RMSGD is fast, performs better than existing sota, and generalizes well across experimental configurations.
@@ -35,10 +38,10 @@ Simply, you must call `.epoch_step()` at the end of each epoch to update the ana
 ## Citation
 ```
 @Article{hosseini2022rmsgd,
-  author  = {},
-  title   = {},
-  journal = {},
-  year    = {},
+  author  = {Hosseini, Mahdi S. and Tuli, Mathieu and Plataniotis, Konstantinos N.},
+  title   = {Exploiting Explainable Metrics for Augmented SGD},
+  journal = {Accepted in IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year    = {2022},
 }
 ```
 
