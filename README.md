@@ -1,6 +1,6 @@
 # RMSGD: Augmented SGD Optimizer
 Official PyTorch implementation of the **RMSGD** optimizer from:
-> [**Exploiting Explainable Metrics for Augmented SGD**](https://arxiv.org/abs/2203.1672)         
+> [**Exploiting Explainable Metrics for Augmented SGD**](https://arxiv.org/abs/2203.16723)         
 > Mahdi S. Hosseini, Mathieu Tuli, Konstantinos N. Plataniotis        
 > *Accepted in IEEE/CVF Conference on Computer Vision and Pattern Recognition ([CVPR2022](https://cvpr2022.thecvf.com/))*
 > 
