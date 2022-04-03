@@ -80,7 +80,7 @@ class RMSGD(Optimizer):
                 if np.isclose(KG[idx], 0.):
                     velocity[idx] = (
                         self.init_lr - self.beta *
-                        self.velocity[idx]) / self.zeta[idx]
+                        self.velocity[idx]) / self.zeta
                 else:
                     self.not_ready.remove(idx)
 
